@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "models.proto";
+
+message ListFilesMetadataResponse {
+  repeated SharedFileMetadata files = 1;
+}
+
+message FileUpdate {
+  oneof update {
+    FileAdded file_added = 1;
+    FileRemoved file_removed = 2;
+  }
+
+  message FileAdded {
+    SharedFileMetadata file = 1;
+  }
+
+  message FileRemoved {
+    string fileId = 1;
+  }
+}
+
+message FileDownloadRequest {
+  string fileId = 1;
+}
+
+message FileDownloadResponse {
+  string channelId = 1;
+}
