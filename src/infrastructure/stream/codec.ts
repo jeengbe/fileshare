@@ -3,7 +3,7 @@ import {
   FileDownloadRequest,
   FileUpdateNotification,
   ListFilesMetadataResponse,
-} from '@/application/network/protocol';
+} from '@/application/rpc/protocol';
 import { SharedFileMetadata } from '@/domain/model/file';
 import { FileUpdateType } from '@/domain/model/update';
 import { SharedFileMetadata as SharedFileMetadataProto } from '@/lib/proto/models';
@@ -13,7 +13,7 @@ import {
   FileUpdate as FileUpdateProto,
   ListFilesMetadataResponse as ListFilesMetadataResponseProto,
 } from '@/lib/proto/packets';
-import { FileDownloadResponsePacket } from './file-download-response-packet';
+import { FileDownloadResponsePacket } from './protocol';
 
 export class FileSharingEncoder {
   encodeSharedFileMetadata(metadata: SharedFileMetadata): Uint8Array {

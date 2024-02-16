@@ -2,15 +2,15 @@ import { SharedFileMetadata } from '@/domain/model/file';
 import { FileUpdate, FileUpdateListener } from '@/domain/model/update';
 import { FileHost } from '@/domain/service/file-host';
 import { Subject, Subscription } from 'rxjs';
-import { ClientHandler } from './interface/client-handler';
-import { HostHandle } from './interface/host-handle';
+import { RpcClientHandler } from './interface/client-handler';
+import { RpcHostHandle } from './interface/host-handle';
 import {
   FileDownloadResponse,
   FileUpdateNotification,
   ListFilesMetadataResponse,
 } from './protocol';
 
-export class NetworkFileHost implements FileHost, ClientHandler {
+export class RpcFileHost implements FileHost, RpcClientHandler {
   private readonly fileUpdateSubject = new Subject<FileUpdate>();
 
   private listFilesMetadataResolve:
@@ -21,7 +21,7 @@ export class NetworkFileHost implements FileHost, ClientHandler {
     | ((file: ReadableStream<Uint8Array> | null) => void)
     | null = null;
 
-  constructor(private readonly hostHandle: HostHandle) {}
+  constructor(private readonly hostHandle: RpcHostHandle) {}
 
   listFilesMetadata(): Promise<SharedFileMetadata[]> {
     if (this.listFilesMetadataResolve !== null) {

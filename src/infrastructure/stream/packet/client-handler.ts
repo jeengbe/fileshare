@@ -1,15 +1,15 @@
-import { ClientHandler } from '@/application/network/interface/client-handler';
-import { FileDownloadResponse } from '@/application/network/protocol';
-import { decodePacket } from '../util/packet';
-import { subscribeToReadable } from '../util/read';
-import { ChannelManager } from './channel-manager';
-import { FileSharingDecoder } from './codec';
-import { PacketType } from './packet-type';
+import { RpcClientHandler } from '@/application/rpc/interface/client-handler';
+import { FileDownloadResponse } from '@/application/rpc/protocol';
+import { decodePacket } from '../../util/packet';
+import { subscribeToReadable } from '../../util/read';
+import { ChannelManager } from '../channel-manager';
+import { FileSharingDecoder } from '../codec';
+import { PacketType } from '../protocol';
 
-export class WebRtcClientHandler {
+export class StreamPacketClientHandler {
   constructor(
     private readonly readable: ReadableStream<ArrayBuffer>,
-    private readonly client: ClientHandler,
+    private readonly client: RpcClientHandler,
     private readonly decoder: FileSharingDecoder,
     private readonly channelManager: ChannelManager,
   ) {}

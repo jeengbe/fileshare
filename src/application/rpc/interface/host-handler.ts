@@ -1,6 +1,6 @@
 import { FileDownloadRequest } from '../protocol';
 
-export interface HostHandler {
+export interface RpcHostHandler {
   onListFilesMetadataRequest(): Promise<void>;
 
   onFileDownloadRequest(request: FileDownloadRequest): Promise<void>;

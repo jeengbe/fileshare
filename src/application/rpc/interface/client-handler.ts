@@ -4,7 +4,7 @@ import {
   ListFilesMetadataResponse,
 } from '../protocol';
 
-export interface ClientHandler {
+export interface RpcClientHandler {
   onListFilesMetadataResponse(
     response: ListFilesMetadataResponse,
   ): Promise<void>;

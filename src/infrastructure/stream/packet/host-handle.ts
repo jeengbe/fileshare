@@ -1,10 +1,10 @@
-import { HostHandle } from '@/application/network/interface/host-handle';
-import { FileDownloadRequest } from '@/application/network/protocol';
-import { writePacket } from '../util/packet';
-import { FileSharingEncoder } from './codec';
-import { PacketType } from './packet-type';
+import { RpcHostHandle } from '@/application/rpc/interface/host-handle';
+import { FileDownloadRequest } from '@/application/rpc/protocol';
+import { writePacket } from '../../util/packet';
+import { FileSharingEncoder } from '../codec';
+import { PacketType } from '../protocol';
 
-export class WebRtcHostHandle implements HostHandle {
+export class StreamPacketHostHandle implements RpcHostHandle {
   constructor(
     private readonly writable: WritableStream<ArrayBuffer>,
     private readonly encoder: FileSharingEncoder,

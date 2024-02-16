@@ -5,3 +5,7 @@ export enum PacketType {
   FileDownloadRequest = 3,
   FileDownloadResponse = 4,
 }
+
+export interface FileDownloadResponsePacket {
+  channelId: string | null;
+}

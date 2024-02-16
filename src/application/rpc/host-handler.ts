@@ -1,14 +1,14 @@
 import { FileHost } from '@/domain/service/file-host';
-import { ClientHandle } from './interface/client-handle';
-import { HostHandler } from './interface/host-handler';
+import { RpcClientHandle } from './interface/client-handle';
+import { RpcHostHandler } from './interface/host-handler';
 import { FileDownloadRequest } from './protocol';
 
-export class NetworkHostHandler implements HostHandler {
+export class RpcHostHandlerImpl implements RpcHostHandler {
   constructor(
-    private readonly fileHostService: FileHost,
-    private readonly clientHandle: ClientHandle,
+    private readonly fileHost: FileHost,
+    private readonly clientHandle: RpcClientHandle,
   ) {
-    this.fileHostService.subscribeToFileUpdates((update) => {
+    this.fileHost.subscribeToFileUpdates((update) => {
       void this.clientHandle.sendFileUpdate({
         update,
       });
@@ -16,7 +16,7 @@ export class NetworkHostHandler implements HostHandler {
   }
 
   async onListFilesMetadataRequest(): Promise<void> {
-    const files = await this.fileHostService.listFilesMetadata();
+    const files = await this.fileHost.listFilesMetadata();
 
     return this.clientHandle.sendListFilesMetadataResponse({
       files,
@@ -24,7 +24,7 @@ export class NetworkHostHandler implements HostHandler {
   }
 
   async onFileDownloadRequest(request: FileDownloadRequest): Promise<void> {
-    const stream = await this.fileHostService.downloadFile(request.fileId);
+    const stream = await this.fileHost.downloadFile(request.fileId);
 
     return this.clientHandle.sendFileDownloadResponse({
       stream,

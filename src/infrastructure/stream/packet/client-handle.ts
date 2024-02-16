@@ -1,16 +1,15 @@
-import { ClientHandle } from '@/application/network/interface/client-handle';
+import { RpcClientHandle } from '@/application/rpc/interface/client-handle';
 import {
   FileDownloadResponse,
   FileUpdateNotification,
   ListFilesMetadataResponse,
-} from '@/application/network/protocol';
-import { writePacket } from '../util/packet';
-import { ChannelManager } from './channel-manager';
-import { FileSharingEncoder } from './codec';
-import { FileDownloadResponsePacket } from './file-download-response-packet';
-import { PacketType } from './packet-type';
+} from '@/application/rpc/protocol';
+import { writePacket } from '../../util/packet';
+import { ChannelManager } from '../channel-manager';
+import { FileSharingEncoder } from '../codec';
+import { FileDownloadResponsePacket, PacketType } from '../protocol';
 
-export class WebRtcClientHandle implements ClientHandle {
+export class StreamPacketClientHandle implements RpcClientHandle {
   constructor(
     private readonly writable: WritableStream<ArrayBuffer>,
     private readonly encoder: FileSharingEncoder,
@@ -48,6 +47,8 @@ export class WebRtcClientHandle implements ClientHandle {
       const channelId = await this.channelManager.negotiateChannel();
 
       this.channelManager.streamToChannel(channelId, response.stream);
+
+      // TODO: ACK the channel negotiation
 
       responsePacket = {
         channelId,

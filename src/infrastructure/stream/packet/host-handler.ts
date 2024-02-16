@@ -1,13 +1,13 @@
-import { HostHandler } from '@/application/network/interface/host-handler';
-import { decodePacket } from '../util/packet';
-import { subscribeToReadable } from '../util/read';
-import { FileSharingDecoder } from './codec';
-import { PacketType } from './packet-type';
+import { RpcHostHandler } from '@/application/rpc/interface/host-handler';
+import { decodePacket } from '../../util/packet';
+import { subscribeToReadable } from '../../util/read';
+import { FileSharingDecoder } from '../codec';
+import { PacketType } from '../protocol';
 
-export class WebRtcHostHandler {
+export class StreamPacketHostHandler {
   constructor(
     private readonly readable: ReadableStream<ArrayBuffer>,
-    private readonly host: HostHandler,
+    private readonly host: RpcHostHandler,
     private readonly decoder: FileSharingDecoder,
   ) {}
 

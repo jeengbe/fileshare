@@ -1,4 +1,4 @@
-import { PacketType } from '../web-rtc/packet-type';
+import { PacketType } from '../stream/protocol';
 import { usingLocked } from './using';
 
 export async function writePacket(

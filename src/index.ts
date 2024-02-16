@@ -1,16 +1,16 @@
 import { LocalFileHost } from './application/local/file-host';
 import { FileManager } from './application/local/file-manager';
-import { NetworkFileHost } from './application/network/file-host';
-import { NetworkHostHandler } from './application/network/host-handler';
-import { ChannelManager } from './infrastructure/web-rtc/channel-manager';
-import { WebRtcClientHandle } from './infrastructure/web-rtc/client-handle';
-import { WebRtcClientHandler } from './infrastructure/web-rtc/client-handler';
+import { RpcFileHost } from './application/rpc/file-host';
+import { RpcHostHandlerImpl } from './application/rpc/host-handler';
+import { ChannelManager } from './infrastructure/stream/channel-manager';
 import {
   FileSharingDecoder,
   FileSharingEncoder,
-} from './infrastructure/web-rtc/codec';
-import { WebRtcHostHandle } from './infrastructure/web-rtc/host-handle';
-import { WebRtcHostHandler } from './infrastructure/web-rtc/host-handler';
+} from './infrastructure/stream/codec';
+import { StreamPacketClientHandle } from './infrastructure/stream/packet/client-handle';
+import { StreamPacketClientHandler } from './infrastructure/stream/packet/client-handler';
+import { StreamPacketHostHandle } from './infrastructure/stream/packet/host-handle';
+import { StreamPacketHostHandler } from './infrastructure/stream/packet/host-handler';
 
 const fileManager = new FileManager();
 const localFileHost = new LocalFileHost(fileManager);
@@ -29,15 +29,15 @@ const { writable: localWritable, readable: remoteReadable } =
 /*
  * LOCAL
  */
-const clientHandle = new WebRtcClientHandle(
+const clientHandle = new StreamPacketClientHandle(
   localWritable,
   new FileSharingEncoder(),
   channelManager,
 );
 
-const hostHandler = new NetworkHostHandler(localFileHost, clientHandle);
+const hostHandler = new RpcHostHandlerImpl(localFileHost, clientHandle);
 
-const hostPacketHandler = new WebRtcHostHandler(
+const hostPacketHandler = new StreamPacketHostHandler(
   localReadable,
   hostHandler,
   new FileSharingDecoder(),
@@ -48,14 +48,14 @@ void hostPacketHandler.subscribe();
 /*
  * REMOTE
  */
-const hostHandle = new WebRtcHostHandle(
+const hostHandle = new StreamPacketHostHandle(
   remoteWritable,
   new FileSharingEncoder(),
 );
 
-const networkFileHost = new NetworkFileHost(hostHandle);
+const networkFileHost = new RpcFileHost(hostHandle);
 
-const clientPacketHandler = new WebRtcClientHandler(
+const clientPacketHandler = new StreamPacketClientHandler(
   remoteReadable,
   networkFileHost,
   new FileSharingDecoder(),
