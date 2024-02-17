@@ -26,5 +26,5 @@ message FileDownloadRequest {
 }
 
 message FileDownloadResponse {
-  string channelId = 1;
+  int32 channelId = 1;
 }

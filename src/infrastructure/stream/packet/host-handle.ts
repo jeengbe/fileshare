@@ -22,13 +22,6 @@ export class StreamPacketHostHandle implements RpcHostHandle {
     await this.writePacket(PacketType.FileDownloadRequest, payload);
   }
 
-  async sendFileDownloadResponseAck(): Promise<void> {
-    await this.writePacket(
-      PacketType.FileDownloadResponseAck,
-      new Uint8Array(),
-    );
-  }
-
   private async writePacket(
     type: PacketType,
     payload: Uint8Array,

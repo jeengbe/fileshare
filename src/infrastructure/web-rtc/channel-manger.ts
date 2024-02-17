@@ -10,20 +10,26 @@ export class WebRtcChannelManager implements ChannelManager {
     return this.lastChannelId++;
   }
 
-  getWritable(channelId: number): WritableStream<ArrayBuffer> {
+  async getWritable(channelId: number): Promise<WritableStream<ArrayBuffer>> {
     const channel = this.connection.createDataChannel(channelId.toString(), {
       negotiated: true,
       id: channelId,
     });
+
+    await new Promise((resolve) => (channel.onopen = resolve));
+    channel.onopen = null;
 
     return new WebRtcReadableWritable(channel).writable;
   }
 
-  getReadable(channelId: number): ReadableStream<ArrayBuffer> {
+  async getReadable(channelId: number): Promise<ReadableStream<ArrayBuffer>> {
     const channel = this.connection.createDataChannel(channelId.toString(), {
       negotiated: true,
       id: channelId,
     });
+
+    await new Promise((resolve) => (channel.onopen = resolve));
+    channel.onopen = null;
 
     return new WebRtcReadableWritable(channel).readable;
   }

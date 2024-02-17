@@ -1,3 +1,5 @@
+import { assert } from '@/util/assert';
+
 export class WebRtcReadableWritable
   implements ReadableWritablePair<ArrayBuffer, ArrayBuffer>
 {
@@ -5,6 +7,8 @@ export class WebRtcReadableWritable
   public readonly writable: WritableStream<ArrayBuffer>;
 
   constructor(private readonly channel: RTCDataChannel) {
+    assert(channel.readyState === 'open', 'Channel must be open');
+
     this.readable = new ReadableStream({
       start(controller) {
         channel.onmessage = (event) => {

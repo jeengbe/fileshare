@@ -21,25 +21,14 @@ export class StreamPacketClientHandle implements RpcClientHandle {
   ): Promise<void> {
     const payload = this.encoder.encodeListFilesMetadataResponse(response);
 
-    await writePacket(
-      this.writable,
-      PacketType.ListFilesMetadataResponse,
-      payload,
-    );
+    await this.writePacket(PacketType.ListFilesMetadataResponse, payload);
   }
 
   async sendFileUpdate(notification: FileUpdateNotification): Promise<void> {
     const payload = this.encoder.encodeFileUpdateNotification(notification);
 
-    await writePacket(
-      this.writable,
-      PacketType.FileUpdateNotification,
-      payload,
-    );
+    await this.writePacket(PacketType.FileUpdateNotification, payload);
   }
-
-  private channelId: number | null = null;
-  private readable: ReadableStream<ArrayBuffer> | null = null;
 
   async sendFileDownloadResponse(
     response: FileDownloadResponse,
@@ -49,8 +38,10 @@ export class StreamPacketClientHandle implements RpcClientHandle {
     if (response.stream) {
       const channelId = this.channelManager.getNextChannelId();
 
-      this.channelId = channelId;
-      this.readable = response.stream;
+      void this.channelManager.getWritable(channelId).then(async (writable) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- We don't modify it
+        await response.stream!.pipeTo(writable);
+      });
 
       responsePacket = {
         channelId,
@@ -63,14 +54,13 @@ export class StreamPacketClientHandle implements RpcClientHandle {
 
     const payload = this.encoder.encodeFileDownloadResponse(responsePacket);
 
-    await writePacket(this.writable, PacketType.FileDownloadResponse, payload);
+    await this.writePacket(PacketType.FileDownloadResponse, payload);
   }
 
-  async startDownloadStream(): Promise<void> {
-    if (this.channelId && this.readable) {
-      await this.readable.pipeTo(
-        this.channelManager.getWritable(this.channelId),
-      );
-    }
+  private async writePacket(
+    type: PacketType,
+    payload: Uint8Array,
+  ): Promise<void> {
+    await writePacket(this.writable, type, payload);
   }
 }

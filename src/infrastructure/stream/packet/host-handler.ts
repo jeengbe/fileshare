@@ -3,11 +3,9 @@ import { decodePacket } from '../../util/packet';
 import { subscribeToReadable } from '../../util/read';
 import { FileSharingDecoder } from '../codec';
 import { PacketType } from '../protocol';
-import { StreamPacketClientHandle } from './client-handle';
 
 export class StreamPacketHostHandler {
   constructor(
-    private readonly clientHandle: StreamPacketClientHandle,
     private readonly readable: ReadableStream<ArrayBuffer>,
     private readonly host: RpcHostHandler,
     private readonly decoder: FileSharingDecoder,
@@ -27,9 +25,6 @@ export class StreamPacketHostHandler {
       case PacketType.FileDownloadRequest:
         await this.onFileDownloadRequest(payload);
         break;
-      case PacketType.FileDownloadResponseAck:
-        await this.onFileDownloadResponseAck();
-        break;
     }
   }
 
@@ -43,9 +38,5 @@ export class StreamPacketHostHandler {
     );
 
     await this.host.onFileDownloadRequest(request);
-  }
-
-  private async onFileDownloadResponseAck(): Promise<void> {
-    await this.clientHandle.startDownloadStream();
   }
 }

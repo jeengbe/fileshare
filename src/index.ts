@@ -22,9 +22,19 @@ fileManager.addFile(new File(['hello'], 'hello.txt'));
  */
 const channelManager = null as unknown as ChannelManager;
 const { readable: localReadable, writable: remoteWritable } =
-  new TransformStream<ArrayBuffer, ArrayBuffer>();
+  new TransformStream<ArrayBuffer, ArrayBuffer>({
+    transform(chunk, controller) {
+      console.log('Local <- Remote', chunk);
+      controller.enqueue(chunk);
+    },
+  });
 const { writable: localWritable, readable: remoteReadable } =
-  new TransformStream<ArrayBuffer, ArrayBuffer>();
+  new TransformStream<ArrayBuffer, ArrayBuffer>({
+    transform(chunk, controller) {
+      console.log('Local -> Remote', chunk);
+      controller.enqueue(chunk);
+    },
+  });
 
 /*
  * LOCAL
@@ -38,7 +48,6 @@ const clientHandle = new StreamPacketClientHandle(
 const hostHandler = new RpcHostHandlerImpl(localFileHost, clientHandle);
 
 const hostPacketHandler = new StreamPacketHostHandler(
-  clientHandle,
   localReadable,
   hostHandler,
   new FileSharingDecoder(),
@@ -57,7 +66,6 @@ const hostHandle = new StreamPacketHostHandle(
 const networkFileHost = new RpcFileHost(hostHandle);
 
 const clientPacketHandler = new StreamPacketClientHandler(
-  hostHandle,
   remoteReadable,
   networkFileHost,
   new FileSharingDecoder(),

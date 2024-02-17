@@ -1,5 +1,5 @@
 export interface ChannelManager {
   getNextChannelId(): number;
-  getWritable(channelId: number): WritableStream<ArrayBuffer>;
-  getReadable(channelId: number): ReadableStream<ArrayBuffer>;
+  getWritable(channelId: number): Promise<WritableStream<ArrayBuffer>>;
+  getReadable(channelId: number): Promise<ReadableStream<ArrayBuffer>>;
 }
