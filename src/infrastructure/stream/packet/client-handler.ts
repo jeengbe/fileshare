@@ -1,13 +1,16 @@
 import { RpcClientHandler } from '@/application/rpc/interface/client-handler';
 import { FileDownloadResponse } from '@/application/rpc/protocol';
+import { ArrayBufferToUint8ArrayTransformStream } from '@/infrastructure/util/array-buffer-uint-8-transform';
 import { decodePacket } from '../../util/packet';
 import { subscribeToReadable } from '../../util/read';
 import { ChannelManager } from '../channel-manager';
 import { FileSharingDecoder } from '../codec';
 import { PacketType } from '../protocol';
+import { StreamPacketHostHandle } from './host-handle';
 
 export class StreamPacketClientHandler {
   constructor(
+    private readonly hostHandle: StreamPacketHostHandle,
     private readonly readable: ReadableStream<ArrayBuffer>,
     private readonly client: RpcClientHandler,
     private readonly decoder: FileSharingDecoder,
@@ -58,12 +61,14 @@ export class StreamPacketClientHandler {
     let response: FileDownloadResponse;
 
     if (responsePacket.channelId) {
-      const stream = this.channelManager.streamFromChannel(
-        responsePacket.channelId,
-      );
+      const stream = this.channelManager.getReadable(responsePacket.channelId);
+
+      await this.hostHandle.sendFileDownloadResponseAck();
 
       response = {
-        stream,
+        stream: stream.pipeThrough(
+          new ArrayBufferToUint8ArrayTransformStream(),
+        ),
       };
     } else {
       response = {

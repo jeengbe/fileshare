@@ -1,6 +1,5 @@
 export interface ChannelManager {
-  negotiateChannel(): Promise<string>;
-
-  streamToChannel(channelId: string, stream: ReadableStream<Uint8Array>): void;
-  streamFromChannel(channelId: string): ReadableStream<Uint8Array>;
+  getNextChannelId(): number;
+  getWritable(channelId: number): WritableStream<ArrayBuffer>;
+  getReadable(channelId: number): ReadableStream<ArrayBuffer>;
 }

@@ -13,16 +13,26 @@ export class StreamPacketHostHandle implements RpcHostHandle {
   async sendListFilesMetadataRequest(): Promise<void> {
     const payload = new Uint8Array();
 
-    await writePacket(
-      this.writable,
-      PacketType.ListFilesMetadataRequest,
-      payload,
-    );
+    await this.writePacket(PacketType.ListFilesMetadataRequest, payload);
   }
 
   async sendFileDownloadRequest(request: FileDownloadRequest): Promise<void> {
     const payload = this.encoder.encodeFileDownloadRequest(request);
 
-    await writePacket(this.writable, PacketType.FileDownloadRequest, payload);
+    await this.writePacket(PacketType.FileDownloadRequest, payload);
+  }
+
+  async sendFileDownloadResponseAck(): Promise<void> {
+    await this.writePacket(
+      PacketType.FileDownloadResponseAck,
+      new Uint8Array(),
+    );
+  }
+
+  private async writePacket(
+    type: PacketType,
+    payload: Uint8Array,
+  ): Promise<void> {
+    await writePacket(this.writable, type, payload);
   }
 }

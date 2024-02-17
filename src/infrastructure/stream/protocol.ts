@@ -4,8 +4,9 @@ export enum PacketType {
   FileUpdateNotification = 2,
   FileDownloadRequest = 3,
   FileDownloadResponse = 4,
+  FileDownloadResponseAck = 5,
 }
 
 export interface FileDownloadResponsePacket {
-  channelId: string | null;
+  channelId: number | null;
 }

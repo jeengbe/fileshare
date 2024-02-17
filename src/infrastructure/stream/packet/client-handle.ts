@@ -38,17 +38,19 @@ export class StreamPacketClientHandle implements RpcClientHandle {
     );
   }
 
+  private channelId: number | null = null;
+  private readable: ReadableStream<ArrayBuffer> | null = null;
+
   async sendFileDownloadResponse(
     response: FileDownloadResponse,
   ): Promise<void> {
     let responsePacket: FileDownloadResponsePacket;
 
     if (response.stream) {
-      const channelId = await this.channelManager.negotiateChannel();
+      const channelId = this.channelManager.getNextChannelId();
 
-      this.channelManager.streamToChannel(channelId, response.stream);
-
-      // TODO: ACK the channel negotiation
+      this.channelId = channelId;
+      this.readable = response.stream;
 
       responsePacket = {
         channelId,
@@ -62,5 +64,13 @@ export class StreamPacketClientHandle implements RpcClientHandle {
     const payload = this.encoder.encodeFileDownloadResponse(responsePacket);
 
     await writePacket(this.writable, PacketType.FileDownloadResponse, payload);
+  }
+
+  async startDownloadStream(): Promise<void> {
+    if (this.channelId && this.readable) {
+      await this.readable.pipeTo(
+        this.channelManager.getWritable(this.channelId),
+      );
+    }
   }
 }

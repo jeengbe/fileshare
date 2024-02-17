@@ -38,6 +38,7 @@ const clientHandle = new StreamPacketClientHandle(
 const hostHandler = new RpcHostHandlerImpl(localFileHost, clientHandle);
 
 const hostPacketHandler = new StreamPacketHostHandler(
+  clientHandle,
   localReadable,
   hostHandler,
   new FileSharingDecoder(),
@@ -56,6 +57,7 @@ const hostHandle = new StreamPacketHostHandle(
 const networkFileHost = new RpcFileHost(hostHandle);
 
 const clientPacketHandler = new StreamPacketClientHandler(
+  hostHandle,
   remoteReadable,
   networkFileHost,
   new FileSharingDecoder(),
