@@ -1,13 +1,11 @@
 import {
   FileDownloadResponse,
   FileUpdateNotification,
-  ListFilesMetadataResponse,
+  GetInformationResponse,
 } from '../protocol';
 
 export interface RpcClientHandler {
-  onListFilesMetadataResponse(
-    response: ListFilesMetadataResponse,
-  ): Promise<void>;
+  onGetInformationResponse(response: GetInformationResponse): Promise<void>;
 
   onFileUpdate(notification: FileUpdateNotification): Promise<void>;
 

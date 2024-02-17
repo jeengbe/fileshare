@@ -18,9 +18,9 @@ export class HostManager {
 
     void new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
       const fileManager = new FileManager();
-      const fakeHost = new LocalFileHost(fileManager);
+      const fakeHost = new LocalFileHost('ASDCO', fileManager);
 
-      callback('asd', fakeHost);
+      callback('LE UUID', fakeHost);
 
       void new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
         fileManager.addFile(

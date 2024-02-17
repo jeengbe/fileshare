@@ -2,8 +2,9 @@ syntax = "proto3";
 
 import "models.proto";
 
-message ListFilesMetadataResponse {
-  repeated SharedFileMetadata files = 1;
+message GetInformationResponse {
+  string name = 1;
+  repeated SharedFileMetadata files = 2;
 }
 
 message FileUpdate {

@@ -140,12 +140,7 @@ const Idle = ({
       <p className='text-center text-lg font-bold'>{id}</p>
     </section>
     {Array.from(hosts, ([hostId, host]) => (
-      <ReceiveHost
-        key={hostId}
-        hostId={hostId}
-        host={host}
-        download={download}
-      />
+      <ReceiveHost key={hostId} host={host} download={download} />
     ))}
   </>
 );

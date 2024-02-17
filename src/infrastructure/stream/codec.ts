@@ -2,7 +2,7 @@
 import {
   FileDownloadRequest,
   FileUpdateNotification,
-  ListFilesMetadataResponse,
+  GetInformationResponse,
 } from '@/application/rpc/protocol';
 import { SharedFileMetadata } from '@/domain/model/file';
 import { FileUpdateType } from '@/domain/model/update';
@@ -11,7 +11,7 @@ import {
   FileDownloadRequest as FileDownloadRequestProto,
   FileDownloadResponse as FileDownloadResponseProto,
   FileUpdate as FileUpdateProto,
-  ListFilesMetadataResponse as ListFilesMetadataResponseProto,
+  GetInformationResponse as GetInformationResponseProto,
 } from '@/lib/proto/packets';
 import { FileDownloadResponsePacket } from './protocol';
 
@@ -20,11 +20,10 @@ export class FileSharingEncoder {
     return SharedFileMetadataProto.fromObject(metadata).serialize();
   }
 
-  encodeListFilesMetadataResponse(
-    response: ListFilesMetadataResponse,
-  ): Uint8Array {
-    return ListFilesMetadataResponseProto.fromObject({
-      files: response.files.map((item) =>
+  encodeGetInformationResponse(response: GetInformationResponse): Uint8Array {
+    return GetInformationResponseProto.fromObject({
+      name: response.information.name,
+      files: response.information.files.map((item) =>
         SharedFileMetadataProto.fromObject(item),
       ),
     }).serialize();
@@ -72,15 +71,18 @@ export class FileSharingDecoder {
     };
   }
 
-  decodeListFilesMetadataResponse(data: Uint8Array): ListFilesMetadataResponse {
-    const proto = ListFilesMetadataResponseProto.deserialize(data);
+  decodeGetInformationResponse(data: Uint8Array): GetInformationResponse {
+    const proto = GetInformationResponseProto.deserialize(data);
 
     return {
-      files: proto.files.map((item) => ({
-        id: item.id,
-        name: item.name,
-        size: item.size,
-      })),
+      information: {
+        name: proto.name,
+        files: proto.files.map((item) => ({
+          id: item.id,
+          name: item.name,
+          size: item.size,
+        })),
+      },
     };
   }
 

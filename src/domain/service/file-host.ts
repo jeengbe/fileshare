@@ -1,9 +1,9 @@
-import { SharedFileMetadata } from '@/domain/model/file';
-import { FileUpdateListener } from '@/domain/model/update';
 import { Subscription } from 'rxjs';
+import { HostInformation } from '../model/host-information';
+import { FileUpdateListener } from '../model/update';
 
 export interface FileHost {
-  listFilesMetadata(): Promise<SharedFileMetadata[]>;
+  getInformation(): Promise<HostInformation>;
   subscribeToFileUpdates(listener: FileUpdateListener): Subscription;
   downloadFile(fileId: string): Promise<ReadableStream<Uint8Array> | null>;
 }

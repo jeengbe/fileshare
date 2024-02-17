@@ -1,4 +1,4 @@
-import { SharedFileMetadata } from '@/domain/model/file';
+import { HostInformation } from '@/domain/model/host-information';
 import { FileUpdate, FileUpdateListener } from '@/domain/model/update';
 import { FileHost } from '@/domain/service/file-host';
 import { Subject, Subscription } from 'rxjs';
@@ -7,14 +7,14 @@ import { RpcHostHandle } from './interface/host-handle';
 import {
   FileDownloadResponse,
   FileUpdateNotification,
-  ListFilesMetadataResponse,
+  GetInformationResponse,
 } from './protocol';
 
 export class RpcFileHost implements FileHost, RpcClientHandler {
   private readonly fileUpdateSubject = new Subject<FileUpdate>();
 
-  private listFilesMetadataResolve:
-    | ((files: SharedFileMetadata[]) => void)
+  private getInformationResolve:
+    | ((information: HostInformation) => void)
     | null = null;
 
   private downloadFileResolve:
@@ -23,16 +23,16 @@ export class RpcFileHost implements FileHost, RpcClientHandler {
 
   constructor(private readonly hostHandle: RpcHostHandle) {}
 
-  listFilesMetadata(): Promise<SharedFileMetadata[]> {
-    if (this.listFilesMetadataResolve !== null) {
+  getInformation(): Promise<HostInformation> {
+    if (this.getInformationResolve !== null) {
       throw new Error('Another listFilesMetadata request is in progress');
     }
 
     return new Promise((resolve, reject) => {
-      this.listFilesMetadataResolve = resolve;
+      this.getInformationResolve = resolve;
 
-      this.hostHandle.sendListFilesMetadataRequest().catch((err: Error) => {
-        this.listFilesMetadataResolve = null;
+      this.hostHandle.sendGetInformationRequest().catch((err: Error) => {
+        this.getInformationResolve = null;
 
         reject(err);
       });
@@ -61,16 +61,16 @@ export class RpcFileHost implements FileHost, RpcClientHandler {
     });
   }
 
-  async onListFilesMetadataResponse(
-    response: ListFilesMetadataResponse,
+  async onGetInformationResponse(
+    response: GetInformationResponse,
   ): Promise<void> {
-    if (!this.listFilesMetadataResolve) {
-      throw new Error('Unexpected listFilesMetadata response');
+    if (!this.getInformationResolve) {
+      throw new Error('Unexpected getInformation response');
     }
 
-    this.listFilesMetadataResolve(response.files);
+    this.getInformationResolve(response.information);
 
-    this.listFilesMetadataResolve = null;
+    this.getInformationResolve = null;
   }
 
   async onFileUpdate(notification: FileUpdateNotification): Promise<void> {

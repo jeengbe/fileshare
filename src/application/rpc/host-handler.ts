@@ -15,11 +15,11 @@ export class RpcHostHandlerImpl implements RpcHostHandler {
     });
   }
 
-  async onListFilesMetadataRequest(): Promise<void> {
-    const files = await this.fileHost.listFilesMetadata();
+  async onGetInformationRequest(): Promise<void> {
+    const information = await this.fileHost.getInformation();
 
-    return this.clientHandle.sendListFilesMetadataResponse({
-      files,
+    return this.clientHandle.sendGetInformationResponse({
+      information,
     });
   }
 

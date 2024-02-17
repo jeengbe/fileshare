@@ -19,8 +19,8 @@ export class StreamPacketHostHandler {
     const { type, payload } = decodePacket(chunk);
 
     switch (type) {
-      case PacketType.ListFilesMetadataRequest:
-        await this.onListFilesMetadataRequest();
+      case PacketType.GetInformationRequest:
+        await this.onGetInformationRequest();
         break;
       case PacketType.FileDownloadRequest:
         await this.onFileDownloadRequest(payload);
@@ -28,8 +28,8 @@ export class StreamPacketHostHandler {
     }
   }
 
-  private async onListFilesMetadataRequest(): Promise<void> {
-    await this.host.onListFilesMetadataRequest();
+  private async onGetInformationRequest(): Promise<void> {
+    await this.host.onGetInformationRequest();
   }
 
   private async onFileDownloadRequest(payload: ArrayBuffer): Promise<void> {

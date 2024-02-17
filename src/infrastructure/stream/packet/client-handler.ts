@@ -23,8 +23,8 @@ export class StreamPacketClientHandler {
     const { type, payload } = decodePacket(chunk);
 
     switch (type) {
-      case PacketType.ListFilesMetadataResponse:
-        await this.onFilesMetadataResponse(payload);
+      case PacketType.GetInformationResponse:
+        await this.onGetInformationResponse(payload);
         break;
       case PacketType.FileUpdateNotification:
         await this.onFileUpdateNotification(payload);
@@ -35,12 +35,12 @@ export class StreamPacketClientHandler {
     }
   }
 
-  private async onFilesMetadataResponse(payload: ArrayBuffer): Promise<void> {
-    const response = this.decoder.decodeListFilesMetadataResponse(
+  private async onGetInformationResponse(payload: ArrayBuffer): Promise<void> {
+    const response = this.decoder.decodeGetInformationResponse(
       new Uint8Array(payload),
     );
 
-    await this.client.onListFilesMetadataResponse(response);
+    await this.client.onGetInformationResponse(response);
   }
 
   private async onFileUpdateNotification(payload: ArrayBuffer): Promise<void> {

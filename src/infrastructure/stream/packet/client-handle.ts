@@ -2,7 +2,7 @@ import { RpcClientHandle } from '@/application/rpc/interface/client-handle';
 import {
   FileDownloadResponse,
   FileUpdateNotification,
-  ListFilesMetadataResponse,
+  GetInformationResponse,
 } from '@/application/rpc/protocol';
 import { writePacket } from '../../util/packet';
 import { ChannelManager } from '../channel-manager';
@@ -16,12 +16,12 @@ export class StreamPacketClientHandle implements RpcClientHandle {
     private readonly encoder: FileSharingEncoder = new FileSharingEncoder(),
   ) {}
 
-  async sendListFilesMetadataResponse(
-    response: ListFilesMetadataResponse,
+  async sendGetInformationResponse(
+    response: GetInformationResponse,
   ): Promise<void> {
     const payload = this.encoder.encodeListFilesMetadataResponse(response);
 
-    await this.writePacket(PacketType.ListFilesMetadataResponse, payload);
+    await this.writePacket(PacketType.GetInformationResponse, payload);
   }
 
   async sendFileUpdate(notification: FileUpdateNotification): Promise<void> {

@@ -1,4 +1,5 @@
 import { SharedFile, SharedFileMetadata } from '@/domain/model/file';
+import { HostInformation } from '@/domain/model/host-information';
 import {
   FileUpdate,
   FileUpdateListener,
@@ -11,7 +12,10 @@ import { FileActionType, FileManager } from './file-manager';
 export class LocalFileHost implements FileHost {
   private readonly fileUpdateObservable: Observable<FileUpdate>;
 
-  constructor(private readonly fileManager: FileManager) {
+  constructor(
+    private readonly name: string,
+    private readonly fileManager: FileManager,
+  ) {
     this.fileUpdateObservable = this.fileManager.fileActionSubject.pipe(
       map((action) => {
         switch (action.type) {
@@ -31,10 +35,15 @@ export class LocalFileHost implements FileHost {
     );
   }
 
-  async listFilesMetadata(): Promise<SharedFileMetadata[]> {
-    return this.fileManager
+  async getInformation(): Promise<HostInformation> {
+    const files = this.fileManager
       .getSharedFiles()
       .map((sharedFile) => getFileMetadata(sharedFile));
+
+    return {
+      name: this.name,
+      files,
+    };
   }
 
   subscribeToFileUpdates(listener: FileUpdateListener): Subscription {

@@ -1,8 +1,8 @@
-import { SharedFileMetadata } from '@/domain/model/file';
+import { HostInformation } from '@/domain/model/host-information';
 import { FileUpdate } from '@/domain/model/update';
 
-export interface ListFilesMetadataResponse {
-  files: SharedFileMetadata[];
+export interface GetInformationResponse {
+  information: HostInformation;
 }
 
 export interface FileUpdateNotification {

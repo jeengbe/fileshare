@@ -10,10 +10,10 @@ export class StreamPacketHostHandle implements RpcHostHandle {
     private readonly encoder: FileSharingEncoder = new FileSharingEncoder(),
   ) {}
 
-  async sendListFilesMetadataRequest(): Promise<void> {
+  async sendGetInformationRequest(): Promise<void> {
     const payload = new Uint8Array();
 
-    await this.writePacket(PacketType.ListFilesMetadataRequest, payload);
+    await this.writePacket(PacketType.GetInformationRequest, payload);
   }
 
   async sendFileDownloadRequest(request: FileDownloadRequest): Promise<void> {

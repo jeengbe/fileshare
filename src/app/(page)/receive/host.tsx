@@ -6,14 +6,13 @@ import { Subscription } from 'rxjs';
 import { FileDownloader } from './box';
 
 export const ReceiveHost = ({
-  hostId,
   host,
   download,
 }: {
-  hostId: string;
   host: FileHost;
   download: FileDownloader;
 }) => {
+  const [name, setName] = useState<string>('');
   const [files, setFiles] = useState<ReadonlyMap<string, SharedFileMetadata>>(
     new Map(),
   );
@@ -22,9 +21,10 @@ export const ReceiveHost = ({
     let isMounted = true;
     let updateSubscription: Subscription | undefined;
 
-    void host.listFilesMetadata().then((files) => {
+    void host.getInformation().then(({ name, files }) => {
       if (!isMounted) return;
 
+      setName(name);
       setFiles(new Map(files.map((file) => [file.id, file])));
 
       updateSubscription = host.subscribeToFileUpdates((update) => {
@@ -82,7 +82,7 @@ export const ReceiveHost = ({
 
   return (
     <section>
-      <h2>{hostId}</h2>
+      <h2>{name}</h2>
       <ul>
         {[...files.values()].map((file) => (
           <li key={file.id}>
