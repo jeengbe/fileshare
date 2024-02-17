@@ -7,7 +7,7 @@ import { PacketType } from '../protocol';
 export class StreamPacketHostHandle implements RpcHostHandle {
   constructor(
     private readonly writable: WritableStream<ArrayBuffer>,
-    private readonly encoder: FileSharingEncoder,
+    private readonly encoder: FileSharingEncoder = new FileSharingEncoder(),
   ) {}
 
   async sendListFilesMetadataRequest(): Promise<void> {

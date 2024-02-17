@@ -9,10 +9,10 @@ import { PacketType } from '../protocol';
 
 export class StreamPacketClientHandler {
   constructor(
-    private readonly readable: ReadableStream<ArrayBuffer>,
     private readonly client: RpcClientHandler,
-    private readonly decoder: FileSharingDecoder,
+    private readonly readable: ReadableStream<ArrayBuffer>,
     private readonly channelManager: ChannelManager,
+    private readonly decoder: FileSharingDecoder = new FileSharingDecoder(),
   ) {}
 
   async subscribe(): Promise<void> {

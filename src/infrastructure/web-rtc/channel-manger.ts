@@ -6,7 +6,7 @@ export class WebRtcChannelManager implements ChannelManager {
 
   constructor(private readonly connection: RTCPeerConnection) {}
 
-  getNextChannelId(): number {
+  getFreeChannelId(): number {
     return this.lastChannelId++;
   }
 

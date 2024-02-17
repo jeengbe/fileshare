@@ -12,8 +12,8 @@ import { FileDownloadResponsePacket, PacketType } from '../protocol';
 export class StreamPacketClientHandle implements RpcClientHandle {
   constructor(
     private readonly writable: WritableStream<ArrayBuffer>,
-    private readonly encoder: FileSharingEncoder,
     private readonly channelManager: ChannelManager,
+    private readonly encoder: FileSharingEncoder = new FileSharingEncoder(),
   ) {}
 
   async sendListFilesMetadataResponse(
@@ -36,7 +36,7 @@ export class StreamPacketClientHandle implements RpcClientHandle {
     let responsePacket: FileDownloadResponsePacket;
 
     if (response.stream) {
-      const channelId = this.channelManager.getNextChannelId();
+      const channelId = this.channelManager.getFreeChannelId();
 
       void this.channelManager.getWritable(channelId).then(async (writable) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- We don't modify it

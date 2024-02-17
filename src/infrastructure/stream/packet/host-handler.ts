@@ -6,9 +6,9 @@ import { PacketType } from '../protocol';
 
 export class StreamPacketHostHandler {
   constructor(
-    private readonly readable: ReadableStream<ArrayBuffer>,
     private readonly host: RpcHostHandler,
-    private readonly decoder: FileSharingDecoder,
+    private readonly readable: ReadableStream<ArrayBuffer>,
+    private readonly decoder: FileSharingDecoder = new FileSharingDecoder(),
   ) {}
 
   async subscribe(): Promise<void> {
