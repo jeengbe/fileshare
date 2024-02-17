@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import Link from 'next/link';
 
 // @ts-expect-error -- Polyfill
 Symbol.dispose ??= Symbol('Symbol.dispose');
@@ -8,26 +8,15 @@ Symbol.dispose ??= Symbol('Symbol.dispose');
 Symbol.asyncDispose ??= Symbol('Symbol.asyncDispose');
 
 export default function Page() {
-  const send = useCallback(async () => {}, []);
-  const receive = useCallback(async () => {}, []);
-
   return (
-    <main>
-      <button
-        onClick={() => {
-          send();
-        }}
-      >
-        Send
-      </button>
-      <br />
-      <button
-        onClick={() => {
-          receive();
-        }}
-      >
-        Receive
-      </button>
-    </main>
+    <div>
+      <div>
+        <h1>P2P File Sharing</h1>
+      </div>
+      <div>
+        <Link href='/send'>Send</Link>
+        <Link href='/receive'>Receive</Link>
+      </div>
+    </div>
   );
 }

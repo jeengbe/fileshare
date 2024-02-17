@@ -3,10 +3,7 @@ import { FileManager } from './application/local/file-manager';
 import { RpcFileHost } from './application/rpc/file-host';
 import { RpcHostHandlerImpl } from './application/rpc/host-handler';
 import { ChannelManager } from './infrastructure/stream/channel-manager';
-import {
-  FileSharingDecoder,
-  FileSharingEncoder,
-} from './infrastructure/stream/codec';
+import { FileSharingEncoder } from './infrastructure/stream/codec';
 import { StreamPacketClientHandle } from './infrastructure/stream/packet/client-handle';
 import { StreamPacketClientHandler } from './infrastructure/stream/packet/client-handler';
 import { StreamPacketHostHandle } from './infrastructure/stream/packet/host-handle';
@@ -41,16 +38,14 @@ const { writable: localWritable, readable: remoteReadable } =
  */
 const clientHandle = new StreamPacketClientHandle(
   localWritable,
-  new FileSharingEncoder(),
   channelManager,
 );
 
 const hostHandler = new RpcHostHandlerImpl(localFileHost, clientHandle);
 
 const hostPacketHandler = new StreamPacketHostHandler(
-  localReadable,
   hostHandler,
-  new FileSharingDecoder(),
+  localReadable,
 );
 
 void hostPacketHandler.subscribe();
@@ -66,9 +61,8 @@ const hostHandle = new StreamPacketHostHandle(
 const networkFileHost = new RpcFileHost(hostHandle);
 
 const clientPacketHandler = new StreamPacketClientHandler(
-  remoteReadable,
   networkFileHost,
-  new FileSharingDecoder(),
+  remoteReadable,
   channelManager,
 );
 
