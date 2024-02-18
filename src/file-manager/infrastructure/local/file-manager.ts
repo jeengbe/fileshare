@@ -1,5 +1,5 @@
+import { SharedFile } from '@/file-manager/domain/model/file';
 import { Subject } from 'rxjs';
-import { SharedFile } from '../../domain/model/file';
 
 export type FileActionListener = (action: FileAction) => void;
 

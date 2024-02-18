@@ -1,11 +1,14 @@
-import { SharedFile, SharedFileMetadata } from '@/domain/model/file';
-import { HostInformation } from '@/domain/model/host-information';
+import {
+  SharedFile,
+  SharedFileMetadata,
+} from '@/file-manager/domain/model/file';
+import { HostInformation } from '@/file-manager/domain/model/host-information';
 import {
   FileUpdate,
   FileUpdateListener,
   FileUpdateType,
-} from '@/domain/model/update';
-import { FileHost } from '@/domain/service/file-host';
+} from '@/file-manager/domain/model/update';
+import { FileHost } from '@/file-manager/domain/service/file-host';
 import { Observable, Subscription, map } from 'rxjs';
 import { FileActionType, FileManager } from './file-manager';
 

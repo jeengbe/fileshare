@@ -1,6 +1,6 @@
-import { HostInformation } from '@/domain/model/host-information';
-import { FileUpdateListener } from '@/domain/model/update';
-import { FileHost } from '@/domain/service/file-host';
+import { HostInformation } from '@/file-manager/domain/model/host-information';
+import { FileUpdateListener } from '@/file-manager/domain/model/update';
+import { FileHost } from '@/file-manager/domain/service/file-host';
 import { Subscription } from 'rxjs';
 import { RpcClientHandler } from './client-handler';
 

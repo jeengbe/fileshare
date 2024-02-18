@@ -1,5 +1,5 @@
-import { ChannelManager } from '../stream/channel-manager';
-import { RtcReadableWritable } from './util/rtc-readable-writable';
+import { ChannelManager } from '@/file-manager/infrastructure/stream/channel-manager';
+import { rtcToReadable, rtcToWritable } from './util/rtc-readable-writable';
 
 export class RtcChannelManager implements ChannelManager {
   private lastChannelId = 1;
@@ -19,7 +19,7 @@ export class RtcChannelManager implements ChannelManager {
     await new Promise((resolve) => (channel.onopen = resolve));
     channel.onopen = null;
 
-    return new RtcReadableWritable(channel).writable;
+    return rtcToWritable(channel);
   }
 
   async getReadable(channelId: number): Promise<ReadableStream<ArrayBuffer>> {
@@ -31,6 +31,6 @@ export class RtcChannelManager implements ChannelManager {
     await new Promise((resolve) => (channel.onopen = resolve));
     channel.onopen = null;
 
-    return new RtcReadableWritable(channel).readable;
+    return rtcToReadable(channel);
   }
 }

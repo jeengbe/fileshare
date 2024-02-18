@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
-import { SharedFileMetadata } from '@/domain/model/file';
-import { FileUpdateType } from '@/domain/model/update';
+import { SharedFileMetadata } from '@/file-manager/domain/model/file';
+import { FileUpdateType } from '@/file-manager/domain/model/update';
 import { SharedFileMetadata as SharedFileMetadataProto } from '@/lib/proto/models';
 import {
   FileDownloadRequest as FileDownloadRequestProto,

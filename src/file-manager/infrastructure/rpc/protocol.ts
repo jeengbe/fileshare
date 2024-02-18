@@ -1,5 +1,5 @@
-import { HostInformation } from '../../domain/model/host-information';
-import { FileUpdate } from '../../domain/model/update';
+import { HostInformation } from '@/file-manager/domain/model/host-information';
+import { FileUpdate } from '@/file-manager/domain/model/update';
 
 export interface GetInformationResponse {
   information: HostInformation;

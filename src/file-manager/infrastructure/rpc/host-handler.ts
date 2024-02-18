@@ -1,4 +1,4 @@
-import { FileHost } from '@/domain/service/file-host';
+import { FileHost } from '@/file-manager/domain/service/file-host';
 import { RpcClientHandle } from './client-handle';
 import { FileDownloadRequest } from './protocol';
 
