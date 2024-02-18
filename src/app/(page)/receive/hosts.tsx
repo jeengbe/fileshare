@@ -1,55 +1,77 @@
 'use client';
 
-import { HostEventType } from '@/file-manager/application/rpc/interface/host-manager';
+import { step1To2, step2To3, step3ToClient4 } from '@/connection/map';
 import { FileHost } from '@/file-manager/domain/service/file-host';
-import { StreamHostManager } from '@/file-manager/infrastructure/stream/host-manager';
+import { useLater } from '@/util/use-later';
+import { establishConnectionIncoming } from '@/web-rtc/connect';
+import { WebRtcSignalingServerConnector } from '@/web-rtc/connector';
+import { WebRtcSignalingServer } from '@/web-rtc/signaling-server';
 import { useEffect, useState } from 'react';
+import { Subject, map, mergeMap } from 'rxjs';
 import { ReceiveHost } from './host';
 
-enum ReceiveState {
-  Idle,
-  ConnectingToSignaling,
-}
+const connector: WebRtcSignalingServerConnector = {
+  async connect() {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    return new WebRtcSignalingServer(
+      'USER-ID',
+      {
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+      },
+      {
+        offer$: new Subject<[peerId: string, RTCSessionDescriptionInit]>(),
+        answer$: new Subject<[peerId: string, RTCSessionDescriptionInit]>(),
+        iceCandidate$: new Subject<[peerId: string, RTCIceCandidate]>(),
+
+        sendOffer: (...d) => Promise.resolve(console.log('Send Offer', d)),
+        sendAnswer: (...d) => Promise.resolve(console.log('Send Answer', d)),
+        sendIceCandidate: (...d) =>
+          Promise.resolve(console.log('Send Candidate', d)),
+
+        [Symbol.dispose]: () => {
+          console.log('disconnect');
+        },
+      },
+    );
+  },
+};
 
 export const Receive = () => {
-  const [state, setState] = useState(ReceiveState.ConnectingToSignaling);
-  const [id, setId] = useState('');
   const [hosts, setHosts] = useState<ReadonlyMap<string, FileHost>>(new Map());
+  const signalingServer = useLater(
+    () => connector.connect(),
+    (c) => c[Symbol.dispose](),
+  );
 
   useEffect(() => {
-    void (async () => {
-      const hostManager = new StreamHostManager();
+    if (signalingServer) {
+      const subscription = signalingServer.request$
+        .pipe(mergeMap(establishConnectionIncoming(signalingServer.rtcConfig)))
+        .pipe(mergeMap(step1To2), map(step2To3), map(step3ToClient4))
+        .subscribe(({ peerId, clientHandler, host }) => {
+          setHosts((hosts) => new Map(hosts).set(peerId, host));
 
-      const { id } = await hostManager.connect();
-
-      setState(ReceiveState.Idle);
-      setId(id);
-
-      hostManager.hostEvent$.subscribe((event) => {
-        switch (event.type) {
-          case HostEventType.Added:
-            setHosts((hosts) => new Map(hosts).set(event.hostId, event.host));
-            break;
-          case HostEventType.Removed:
+          void clientHandler.subscribe().then(() => {
             setHosts((hosts) => {
               const newHosts = new Map(hosts);
-              newHosts.delete(event.hostId);
+              newHosts.delete(peerId);
               return newHosts;
             });
-            break;
-        }
-      });
-    });
-  }, []);
+          });
+        });
+
+      return () => subscription.unsubscribe();
+    }
+  }, [signalingServer]);
 
   return (
     <main className='flex flex-col gap-2 items-center'>
-      {
-        {
-          [ReceiveState.Idle]: <Idle id={id} hosts={hosts} />,
-          [ReceiveState.ConnectingToSignaling]: <Connecting />,
-        }[state]
-      }
+      {signalingServer ? (
+        <Idle id={signalingServer.userId} hosts={hosts} />
+      ) : (
+        <Connecting />
+      )}
     </main>
   );
 };

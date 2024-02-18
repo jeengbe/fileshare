@@ -20,18 +20,19 @@ import { rtcToReadable, rtcToWritable } from './util/rtc-readable-writable';
 export async function step1To2(
   connection: RtcConnectionStep1,
 ): Promise<RtcConnectionStep2> {
-  const { rtcConnection } = connection;
+  const { peerId, connection: rtcConnection } = connection;
 
   const metaChannel = await createRtcChannel(rtcConnection, 'meta', 0);
 
   return {
+    peerId,
     rtcConnection,
     metaChannel,
   };
 }
 
 export function step2To3(connection: RtcConnectionStep2): RtcConnectionStep3 {
-  const { rtcConnection, metaChannel } = connection;
+  const { peerId, rtcConnection, metaChannel } = connection;
 
   assert(metaChannel.readyState === 'open', 'Meta channel must be open.');
   assert(metaChannel.label === 'meta', 'Meta channel must be labeled "meta".');
@@ -40,6 +41,7 @@ export function step2To3(connection: RtcConnectionStep2): RtcConnectionStep3 {
   assert(metaChannel.id === 0, 'Meta channel must have id 0.');
 
   return {
+    peerId,
     readable: rtcToReadable(metaChannel),
     writable: rtcToWritable(metaChannel),
     channelManager: new RtcChannelManager(rtcConnection),
@@ -49,7 +51,7 @@ export function step2To3(connection: RtcConnectionStep2): RtcConnectionStep3 {
 export function step3ToClient4(
   connection: RtcConnectionStep3,
 ): ClientRtcConnectionStep4 {
-  const { readable, writable, channelManager } = connection;
+  const { peerId, readable, writable, channelManager } = connection;
 
   const hostHandle = new StreamPacketHostHandle(writable);
 
@@ -62,6 +64,7 @@ export function step3ToClient4(
   );
 
   return {
+    peerId,
     host,
     clientHandler,
   };
@@ -71,7 +74,7 @@ export function step3ToHost4(
   fileHost: FileHost,
   connection: RtcConnectionStep3,
 ): HostRtcConnectionStep4 {
-  const { readable, writable, channelManager } = connection;
+  const { peerId, readable, writable, channelManager } = connection;
 
   const clientHandle = new StreamPacketClientHandle(writable, channelManager);
 
@@ -80,6 +83,7 @@ export function step3ToHost4(
   const hostHandler = new StreamPacketHostHandler(host, readable);
 
   return {
+    peerId,
     clientHandle,
     hostHandler,
   };

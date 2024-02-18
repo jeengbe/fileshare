@@ -19,7 +19,7 @@ export class LocalFileHost implements FileHost {
     private readonly name: string,
     private readonly fileManager: FileManager,
   ) {
-    this.fileUpdateObservable = this.fileManager.fileActionSubject.pipe(
+    this.fileUpdateObservable = this.fileManager.fileAction$.pipe(
       map((action) => {
         switch (action.type) {
           case FileActionType.Add:

@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Sw } from './sw';
 import './symbol-dispose';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -19,10 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' className=''>
-      <body className={inter.className}>
-        <Sw />
-        {children}
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

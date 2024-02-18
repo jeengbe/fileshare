@@ -5,14 +5,14 @@ export type FileActionListener = (action: FileAction) => void;
 
 export class FileManager {
   private readonly files = new Map<string, File>();
-  public readonly fileActionSubject = new Subject<FileAction>();
+  public readonly fileAction$ = new Subject<FileAction>();
 
   addFile(file: File): void {
     const id = crypto.randomUUID();
 
     this.files.set(id, file);
 
-    this.fileActionSubject.next({
+    this.fileAction$.next({
       type: FileActionType.Add,
       file: {
         id,
@@ -24,7 +24,7 @@ export class FileManager {
   removeFile(id: string): void {
     this.files.delete(id);
 
-    this.fileActionSubject.next({
+    this.fileAction$.next({
       type: FileActionType.Remove,
       fileId: id,
     });
