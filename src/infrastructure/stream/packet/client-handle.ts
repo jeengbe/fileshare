@@ -19,7 +19,7 @@ export class StreamPacketClientHandle implements RpcClientHandle {
   async sendGetInformationResponse(
     response: GetInformationResponse,
   ): Promise<void> {
-    const payload = this.encoder.encodeListFilesMetadataResponse(response);
+    const payload = this.encoder.encodeGetInformationResponse(response);
 
     await this.writePacket(PacketType.GetInformationResponse, payload);
   }

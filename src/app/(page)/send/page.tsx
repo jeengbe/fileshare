@@ -1,9 +1,9 @@
 import { LocalFileHost } from '@/application/local/file-host';
 import { FileManager } from '@/application/local/file-manager';
 import { RpcHostHandlerImpl } from '@/application/rpc/host-handler';
-import { StreamPacketClientHandle } from '@/infrastructure/stream/packet/client-handle';
+import { StreamPacketClientHandle } from '@/infrastructure/rtc/packet/client-handle';
 import { StreamPacketHostHandler } from '@/infrastructure/stream/packet/host-handler';
-import { WebRtcConnection } from '@/infrastructure/web-rtc/connection';
+import { RtcConnection } from '@/infrastructure/web-rtc/connection';
 import { useMemo, useRef } from 'react';
 
 export default function Page() {
@@ -47,7 +47,7 @@ export default function Page() {
     await new Promise((resolve) => (metaChannel.onopen = resolve));
     metaChannel.onopen = null;
 
-    const { writable, readable, channelManager } = new WebRtcConnection(
+    const { writable, readable, channelManager } = new RtcConnection(
       connection,
       metaChannel,
     );

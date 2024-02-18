@@ -75,7 +75,7 @@ export const ReceiveHost = ({ host }: { host: FileHost }) => {
     [download, files, host],
   );
 
-  return (
+  return name ? (
     <section>
       <h2>{name}</h2>
       <ul>
@@ -88,5 +88,7 @@ export const ReceiveHost = ({ host }: { host: FileHost }) => {
         ))}
       </ul>
     </section>
+  ) : (
+    <p>Loading...</p>
   );
 };

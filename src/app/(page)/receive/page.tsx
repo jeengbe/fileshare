@@ -1,6 +1,6 @@
 import { GitHubIcon } from '@/components/ui/github-icon';
 import Link from 'next/link';
-import { Receive } from './box';
+import { Receive } from './hosts';
 
 export default function Page() {
   return (

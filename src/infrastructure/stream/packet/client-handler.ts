@@ -19,7 +19,7 @@ export class StreamPacketClientHandler {
     await subscribeToReadable(this.readable, this.onMessage.bind(this));
   }
 
-  async onMessage(chunk: ArrayBuffer): Promise<void> {
+  private async onMessage(chunk: ArrayBuffer): Promise<void> {
     const { type, payload } = decodePacket(chunk);
 
     switch (type) {

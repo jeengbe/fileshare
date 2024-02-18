@@ -1,7 +1,8 @@
 'use client';
 
+import { HostEventType } from '@/application/rpc/interface/host-manager';
 import { FileHost } from '@/domain/service/file-host';
-import { HostManager } from '@/infrastructure/web-rtc/signaling';
+import { StreamHostManager } from '@/infrastructure/stream/host-manager';
 import { useEffect, useState } from 'react';
 import { ReceiveHost } from './host';
 
@@ -17,17 +18,28 @@ export const Receive = () => {
 
   useEffect(() => {
     void (async () => {
-      const hostManager = new HostManager();
+      const hostManager = new StreamHostManager();
 
-      const id = await hostManager.connect();
+      const { id } = await hostManager.connect();
 
       setState(ReceiveState.Idle);
       setId(id);
 
-      hostManager.onNewHost((hostId, host) =>
-        setHosts((hosts) => new Map(hosts).set(hostId, host)),
-      );
-    })();
+      hostManager.hostEvent$.subscribe((event) => {
+        switch (event.type) {
+          case HostEventType.Added:
+            setHosts((hosts) => new Map(hosts).set(event.hostId, event.host));
+            break;
+          case HostEventType.Removed:
+            setHosts((hosts) => {
+              const newHosts = new Map(hosts);
+              newHosts.delete(event.hostId);
+              return newHosts;
+            });
+            break;
+        }
+      });
+    });
   }, []);
 
   return (
