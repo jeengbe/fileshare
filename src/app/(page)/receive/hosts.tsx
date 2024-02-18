@@ -1,8 +1,8 @@
 'use client';
 
-import { HostEventType } from '@/application/rpc/interface/host-manager';
-import { FileHost } from '@/domain/service/file-host';
-import { StreamHostManager } from '@/infrastructure/stream/host-manager';
+import { HostEventType } from '@/file-manager/application/rpc/interface/host-manager';
+import { FileHost } from '@/file-manager/domain/service/file-host';
+import { StreamHostManager } from '@/file-manager/infrastructure/stream/host-manager';
 import { useEffect, useState } from 'react';
 import { ReceiveHost } from './host';
 

@@ -1,7 +1,7 @@
 import { useDownload } from '@/components/download';
-import { SharedFileMetadata } from '@/domain/model/file';
-import { FileUpdateType } from '@/domain/model/update';
-import { FileHost } from '@/domain/service/file-host';
+import { SharedFileMetadata } from '@/file-manager/domain/model/file';
+import { FileUpdateType } from '@/file-manager/domain/model/update';
+import { FileHost } from '@/file-manager/domain/service/file-host';
 import { useCallback, useEffect, useState } from 'react';
 import { Subscription } from 'rxjs';
 

@@ -1,9 +1,9 @@
-import { LocalFileHost } from '@/application/local/file-host';
-import { FileManager } from '@/application/local/file-manager';
-import { RpcHostHandlerImpl } from '@/application/rpc/host-handler';
-import { StreamPacketClientHandle } from '@/infrastructure/rtc/packet/client-handle';
-import { StreamPacketHostHandler } from '@/infrastructure/stream/packet/host-handler';
-import { RtcConnection } from '@/infrastructure/web-rtc/connection';
+import { LocalFileHost } from '@/file-manager/application/local/file-host';
+import { FileManager } from '@/file-manager/application/local/file-manager';
+import { RpcHostHandlerImpl } from '@/file-manager/application/rpc/host-handler';
+import { StreamPacketClientHandle } from '@/file-manager/infrastructure/rtc/packet/client-handle';
+import { StreamPacketHostHandler } from '@/file-manager/infrastructure/stream/packet/host-handler';
+import { RtcConnection } from '@/file-manager/infrastructure/web-rtc/connection';
 import { useMemo, useRef } from 'react';
 
 export default function Page() {
