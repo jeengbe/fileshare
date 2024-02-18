@@ -6,7 +6,7 @@ import { subscribeToReadable } from './util/read';
 
 export class StreamPacketHostHandler {
   constructor(
-    private readonly host: RpcHostHandler,
+    private readonly delegate: RpcHostHandler,
     private readonly readable: ReadableStream<ArrayBuffer>,
     private readonly decoder: FileSharingDecoder = new FileSharingDecoder(),
   ) {}
@@ -29,7 +29,7 @@ export class StreamPacketHostHandler {
   }
 
   private async onGetInformationRequest(): Promise<void> {
-    await this.host.onGetInformationRequest();
+    await this.delegate.onGetInformationRequest();
   }
 
   private async onFileDownloadRequest(payload: ArrayBuffer): Promise<void> {
@@ -37,6 +37,6 @@ export class StreamPacketHostHandler {
       new Uint8Array(payload),
     );
 
-    await this.host.onFileDownloadRequest(request);
+    await this.delegate.onFileDownloadRequest(request);
   }
 }

@@ -1,7 +1,6 @@
 import { HostInformation } from '@/domain/model/host-information';
-import { FileUpdate, FileUpdateListener } from '@/domain/model/update';
-import { FileHost } from '@/domain/service/file-host';
-import { Subject, Subscription } from 'rxjs';
+import { FileUpdate } from '@/domain/model/update';
+import { Subject } from 'rxjs';
 import { RpcHostHandle } from './host-handle';
 import {
   FileDownloadResponse,
@@ -9,64 +8,18 @@ import {
   GetInformationResponse,
 } from './protocol';
 
-export interface RpcClientHandler {
-  onGetInformationResponse(response: GetInformationResponse): Promise<void>;
+export class RpcClientHandler {
+  protected readonly fileUpdateSubject = new Subject<FileUpdate>();
 
-  onFileUpdate(notification: FileUpdateNotification): Promise<void>;
-
-  onFileDownloadResponse(response: FileDownloadResponse): Promise<void>;
-}
-
-export class RpcFileHost implements FileHost, RpcClientHandler {
-  private readonly fileUpdateSubject = new Subject<FileUpdate>();
-
-  private getInformationResolve:
+  protected getInformationResolve:
     | ((information: HostInformation) => void)
     | null = null;
 
-  private downloadFileResolve:
+  protected downloadFileResolve:
     | ((file: ReadableStream<Uint8Array> | null) => void)
     | null = null;
 
-  constructor(private readonly hostHandle: RpcHostHandle) {}
-
-  getInformation(): Promise<HostInformation> {
-    if (this.getInformationResolve !== null) {
-      throw new Error('Another listFilesMetadata request is in progress');
-    }
-
-    return new Promise((resolve, reject) => {
-      this.getInformationResolve = resolve;
-
-      this.hostHandle.sendGetInformationRequest().catch((err: Error) => {
-        this.getInformationResolve = null;
-
-        reject(err);
-      });
-    });
-  }
-
-  subscribeToFileUpdates(listener: FileUpdateListener): Subscription {
-    return this.fileUpdateSubject.subscribe(listener);
-  }
-
-  downloadFile(fileId: string): Promise<ReadableStream<Uint8Array> | null> {
-    if (this.downloadFileResolve !== null) {
-      throw new Error('Another downloadFile request is in progress');
-    }
-
-    return new Promise((resolve, reject) => {
-      this.downloadFileResolve = resolve;
-
-      this.hostHandle
-        .sendFileDownloadRequest({ fileId })
-        .catch((err: Error) => {
-          this.downloadFileResolve = null;
-
-          reject(err);
-        });
-    });
-  }
+  constructor(protected readonly hostHandle: RpcHostHandle) {}
 
   async onGetInformationResponse(
     response: GetInformationResponse,
