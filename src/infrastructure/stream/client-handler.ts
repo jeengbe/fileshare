@@ -9,7 +9,7 @@ import { subscribeToReadable } from './util/read';
 
 export class StreamPacketClientHandler {
   constructor(
-    private readonly delegate: RpcClientHandler,
+    private readonly rpcHandler: RpcClientHandler,
     private readonly readable: ReadableStream<ArrayBuffer>,
     private readonly channelManager: ChannelManager,
     private readonly decoder: FileSharingDecoder = new FileSharingDecoder(),
@@ -40,7 +40,7 @@ export class StreamPacketClientHandler {
       new Uint8Array(payload),
     );
 
-    await this.delegate.onGetInformationResponse(response);
+    await this.rpcHandler.onGetInformationResponse(response);
   }
 
   private async onFileUpdateNotification(payload: ArrayBuffer): Promise<void> {
@@ -48,7 +48,7 @@ export class StreamPacketClientHandler {
       new Uint8Array(payload),
     );
 
-    await this.delegate.onFileUpdate(notification);
+    await this.rpcHandler.onFileUpdate(notification);
   }
 
   private async onFileDownloadResponse(payload: ArrayBuffer): Promise<void> {
@@ -74,6 +74,6 @@ export class StreamPacketClientHandler {
       };
     }
 
-    await this.delegate.onFileDownloadResponse(response);
+    await this.rpcHandler.onFileDownloadResponse(response);
   }
 }
