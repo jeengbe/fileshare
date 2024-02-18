@@ -14,6 +14,7 @@ import {
   RtcConnectionStep2,
   RtcConnectionStep3,
 } from './steps';
+import { createRtcChannel } from './util/create-rtc-channel';
 import { rtcToReadable, rtcToWritable } from './util/rtc-readable-writable';
 
 export async function step1To2(
@@ -21,13 +22,7 @@ export async function step1To2(
 ): Promise<RtcConnectionStep2> {
   const { rtcConnection } = connection;
 
-  const metaChannel = rtcConnection.createDataChannel('meta', {
-    negotiated: true,
-    id: 0,
-  });
-
-  await new Promise((resolve) => (metaChannel.onopen = resolve));
-  metaChannel.onopen = null;
+  const metaChannel = await createRtcChannel(rtcConnection, 'meta', 0);
 
   return {
     rtcConnection,

@@ -1,4 +1,5 @@
 import { ChannelManager } from '@/file-manager/infrastructure/stream/channel-manager';
+import { createRtcChannel } from './util/create-rtc-channel';
 import { rtcToReadable, rtcToWritable } from './util/rtc-readable-writable';
 
 export class RtcChannelManager implements ChannelManager {
@@ -11,25 +12,21 @@ export class RtcChannelManager implements ChannelManager {
   }
 
   async getWritable(channelId: number): Promise<WritableStream<ArrayBuffer>> {
-    const channel = this.connection.createDataChannel(channelId.toString(), {
-      negotiated: true,
-      id: channelId,
-    });
-
-    await new Promise((resolve) => (channel.onopen = resolve));
-    channel.onopen = null;
+    const channel = await createRtcChannel(
+      this.connection,
+      channelId.toString(),
+      channelId,
+    );
 
     return rtcToWritable(channel);
   }
 
   async getReadable(channelId: number): Promise<ReadableStream<ArrayBuffer>> {
-    const channel = this.connection.createDataChannel(channelId.toString(), {
-      negotiated: true,
-      id: channelId,
-    });
-
-    await new Promise((resolve) => (channel.onopen = resolve));
-    channel.onopen = null;
+    const channel = await createRtcChannel(
+      this.connection,
+      channelId.toString(),
+      channelId,
+    );
 
     return rtcToReadable(channel);
   }

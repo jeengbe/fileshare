@@ -43,10 +43,15 @@ export function rtcToWritable(
       return;
     }
 
-    await new Promise((resolve) => {
+    const oldOnBufferedAmountLow = channel.onbufferedamountlow;
+    const oldOnError = channel.onerror;
+
+    await new Promise((resolve, reject) => {
       channel.onbufferedamountlow = resolve;
+      channel.onerror = reject;
     });
 
-    channel.onbufferedamountlow = null;
+    channel.onbufferedamountlow = oldOnBufferedAmountLow;
+    channel.onerror = oldOnError;
   }
 }
