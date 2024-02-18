@@ -4,30 +4,31 @@ import { FileHost } from '@/domain/service/file-host';
 
 export class HostManager {
   async connect(): Promise<string> {
-    console.log('Connecting to signaling server...');
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    console.log('Connected to signaling server');
-
-    return '550e8400-e29b-11d4-a716-446655440000';
+    return 'YOUD GUID';
   }
 
   onNewHost(callback: (hostId: string, fileHost: FileHost) => void) {
     console.log('Listening for new connections...');
 
-    void new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
-      const fileManager = new FileManager();
-      const fakeHost = new LocalFileHost('ASDCO', fileManager);
+    const fileManager = new FileManager();
+    const fakeHost = new LocalFileHost('ASDCO', fileManager);
+    let i = 0;
+    fileManager.addFile({
+      name: 'test.txt',
+      size: 1000000000,
+      stream: () =>
+        new ReadableStream({
+          pull(controller) {
+            if (i++ < 1000000) {
+              controller.enqueue(new Uint8Array(1000));
+            } else {
+              controller.close();
+            }
+          },
+        }),
+    } as File);
 
-      callback('LE UUID', fakeHost);
-
-      void new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
-        fileManager.addFile(
-          new File([new Uint32Array([174355297])], 'test.txt'),
-        );
-      });
-    });
+    callback('LE UUID', fakeHost);
   }
 }
 

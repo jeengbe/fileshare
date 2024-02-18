@@ -8,13 +8,21 @@ export async function pipeReadableStreamToMessagePort(
 ): Promise<void> {
   await using reader = usingLocked(stream.getReader());
 
-  signal.addEventListener('abort', () => {
+  signal.onabort = () => {
+    console.log('Signal Aborted');
     void reader.cancel();
+  };
+
+  void reader.closed.finally(() => {
+    console.log('Reader Closed');
+    signal.onabort = null;
   });
 
+  console.log('Piping stream to port');
   try {
     while (true) {
       const { done, value } = await reader.read();
+      // await new Promise((resolve) => setTimeout(resolve, 1));
 
       if (done) {
         port.postMessage({
@@ -33,6 +41,8 @@ export async function pipeReadableStreamToMessagePort(
       );
     }
   } catch (err) {
+    console.log('Reader Error', err);
+
     if (err instanceof DOMException && err.name === 'AbortError') {
       return;
     }

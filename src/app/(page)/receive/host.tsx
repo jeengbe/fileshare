@@ -1,21 +1,16 @@
+import { useDownload } from '@/components/download';
 import { SharedFileMetadata } from '@/domain/model/file';
 import { FileUpdateType } from '@/domain/model/update';
 import { FileHost } from '@/domain/service/file-host';
 import { useCallback, useEffect, useState } from 'react';
 import { Subscription } from 'rxjs';
-import { FileDownloader } from './box';
 
-export const ReceiveHost = ({
-  host,
-  download,
-}: {
-  host: FileHost;
-  download: FileDownloader;
-}) => {
+export const ReceiveHost = ({ host }: { host: FileHost }) => {
   const [name, setName] = useState<string>('');
   const [files, setFiles] = useState<ReadonlyMap<string, SharedFileMetadata>>(
     new Map(),
   );
+  const download = useDownload();
 
   useEffect(() => {
     let isMounted = true;
@@ -70,7 +65,7 @@ export const ReceiveHost = ({
         return;
       }
 
-      await download({
+      await download!({
         fileId,
         filename: file.name,
         size: file.size,
