@@ -19,6 +19,9 @@ export function rtcToReadable(
         controller.error(error);
       };
     },
+    cancel() {
+      channel.close();
+    },
   });
 }
 
@@ -28,7 +31,7 @@ export function rtcToWritable(
   assert(channel.readyState === 'open', 'Channel must be open');
 
   return new WritableStream({
-    write: async (chunk) => {
+    async write(chunk) {
       await waitForChannelReady();
 
       channel.send(chunk);

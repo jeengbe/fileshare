@@ -13,16 +13,19 @@ export class RpcFileHost extends RpcClientHandler implements FileHost {
     return new Promise((resolve, reject) => {
       this.getInformationResolve = resolve;
 
-      this.hostHandle.sendGetInformationRequest().catch((err: Error) => {
-        this.getInformationResolve = null;
-
-        reject(err);
-      });
+      this.hostHandle
+        .sendGetInformationRequest()
+        .catch((err: Error) => {
+          reject(err);
+        })
+        .finally(() => {
+          this.getInformationResolve = null;
+        });
     });
   }
 
   subscribeToFileUpdates(listener: FileUpdateListener): Subscription {
-    return this.fileUpdateSubject.subscribe(listener);
+    return this.fileUpdate$.subscribe(listener);
   }
 
   downloadFile(fileId: string): Promise<ReadableStream<Uint8Array> | null> {
@@ -36,9 +39,10 @@ export class RpcFileHost extends RpcClientHandler implements FileHost {
       this.hostHandle
         .sendFileDownloadRequest({ fileId })
         .catch((err: Error) => {
-          this.downloadFileResolve = null;
-
           reject(err);
+        })
+        .finally(() => {
+          this.downloadFileResolve = null;
         });
     });
   }

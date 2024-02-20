@@ -23,7 +23,7 @@ export function useDownload(): FileDownloader | null {
     }) as WritableStream<Uint8Array>;
 
     const abort = () => {
-      void writable.abort();
+      void writable.close();
     };
 
     const donePromise = stream.pipeTo(writable);

@@ -2,15 +2,30 @@ import { useDownload } from '@/components/download';
 import { SharedFileMetadata } from '@/file-manager/domain/model/file';
 import { FileUpdateType } from '@/file-manager/domain/model/update';
 import { FileHost } from '@/file-manager/domain/service/file-host';
+import { StreamPacketClientHandler } from '@/file-manager/infrastructure/stream/client-handler';
 import { useCallback, useEffect, useState } from 'react';
 import { Subscription } from 'rxjs';
 
-export const ReceiveHost = ({ host }: { host: FileHost }) => {
+export const ReceiveHost = ({
+  host,
+  packetHandler,
+}: {
+  host: FileHost;
+  packetHandler: StreamPacketClientHandler;
+}) => {
   const [name, setName] = useState<string>('');
   const [files, setFiles] = useState<ReadonlyMap<string, SharedFileMetadata>>(
     new Map(),
   );
   const download = useDownload();
+
+  useEffect(() => {
+    const subscription = packetHandler.subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  });
 
   useEffect(() => {
     let isMounted = true;

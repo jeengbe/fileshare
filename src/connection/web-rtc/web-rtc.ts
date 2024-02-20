@@ -1,14 +1,14 @@
-import { RtcConnectionStep1 } from '@/connection/steps';
 import {
-  IncomingWebRtcConnectionRequest,
+  IncomingWebRtcConnection,
   WebRtcSignalingServer,
-} from './signaling-server';
+} from '@/web-rtc-signaling/application/signaling-server';
+import { RawRtcConnection } from './steps';
 
 export function establishConnectionIncoming(
-  rtcConfig: RTCConfiguration,
-): (request: IncomingWebRtcConnectionRequest) => Promise<RtcConnectionStep1> {
+  signalingServer: WebRtcSignalingServer,
+): (request: IncomingWebRtcConnection) => Promise<RawRtcConnection> {
   return async (request) => {
-    const connection = new RTCPeerConnection(rtcConfig);
+    const connection = new RTCPeerConnection(signalingServer.info.rtcConfig);
 
     request.iceCandidate$.subscribe((candidate) => {
       void connection.addIceCandidate(candidate);
@@ -47,9 +47,9 @@ export function establishConnectionIncoming(
 
 export function establishConnectionOutgoing(
   signalingServer: WebRtcSignalingServer,
-): (peerId: string) => Promise<RtcConnectionStep1> {
+): (peerId: string) => Promise<RawRtcConnection> {
   return async (peerId) => {
-    const connection = new RTCPeerConnection(signalingServer.rtcConfig);
+    const connection = new RTCPeerConnection(signalingServer.info.rtcConfig);
 
     const offer = await connection.createOffer();
     await connection.setLocalDescription(offer);

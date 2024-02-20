@@ -9,7 +9,7 @@ import {
 } from './protocol';
 
 export class RpcClientHandler {
-  protected readonly fileUpdateSubject = new Subject<FileUpdate>();
+  protected readonly fileUpdate$ = new Subject<FileUpdate>();
 
   protected getInformationResolve:
     | ((information: HostInformation) => void)
@@ -34,7 +34,7 @@ export class RpcClientHandler {
   }
 
   async onFileUpdate(notification: FileUpdateNotification): Promise<void> {
-    this.fileUpdateSubject.next(notification.update);
+    this.fileUpdate$.next(notification.update);
   }
 
   async onFileDownloadResponse(response: FileDownloadResponse): Promise<void> {

@@ -1,19 +1,19 @@
+import { ChannelManager } from '@/connection/channel-manager';
+import { writePacket } from '@/util/stream/packet';
 import { RpcClientHandle } from '../rpc/client-handle';
 import {
   FileDownloadResponse,
   FileUpdateNotification,
   GetInformationResponse,
 } from '../rpc/protocol';
-import { ChannelManager } from './channel-manager';
 import { FileSharingEncoder } from './codec';
 import { FileDownloadResponsePacket, PacketType } from './protocol';
-import { writePacket } from './util/packet';
 
 export class StreamPacketClientHandle implements RpcClientHandle {
   constructor(
     private readonly writable: WritableStream<ArrayBuffer>,
     private readonly channelManager: ChannelManager,
-    private readonly encoder: FileSharingEncoder = new FileSharingEncoder(),
+    private readonly encoder = new FileSharingEncoder(),
   ) {}
 
   async sendGetInformationResponse(

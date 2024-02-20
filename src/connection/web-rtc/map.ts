@@ -10,16 +10,16 @@ import { RtcChannelManager } from './channel-manger';
 import {
   ClientRtcConnectionStep4,
   HostRtcConnectionStep4,
-  RtcConnectionStep1,
-  RtcConnectionStep2,
-  RtcConnectionStep3,
+  RawRtcConnection,
+  ReadableWritableChannelManagerTriple,
+  RtcConnectionWithMetaChannel,
 } from './steps';
 import { createRtcChannel } from './util/create-rtc-channel';
 import { rtcToReadable, rtcToWritable } from './util/rtc-readable-writable';
 
-export async function step1To2(
-  connection: RtcConnectionStep1,
-): Promise<RtcConnectionStep2> {
+export async function rawToWithMetaChannel(
+  connection: RawRtcConnection,
+): Promise<RtcConnectionWithMetaChannel> {
   const { peerId, connection: rtcConnection } = connection;
 
   const metaChannel = await createRtcChannel(rtcConnection, 'meta', 0);
@@ -31,7 +31,9 @@ export async function step1To2(
   };
 }
 
-export function step2To3(connection: RtcConnectionStep2): RtcConnectionStep3 {
+export function withMetaChannelToReadableWritableChannelManager(
+  connection: RtcConnectionWithMetaChannel,
+): ReadableWritableChannelManagerTriple {
   const { peerId, rtcConnection, metaChannel } = connection;
 
   assert(metaChannel.readyState === 'open', 'Meta channel must be open.');
@@ -49,7 +51,7 @@ export function step2To3(connection: RtcConnectionStep2): RtcConnectionStep3 {
 }
 
 export function step3ToClient4(
-  connection: RtcConnectionStep3,
+  connection: ReadableWritableChannelManagerTriple,
 ): ClientRtcConnectionStep4 {
   const { peerId, readable, writable, channelManager } = connection;
 
@@ -72,7 +74,7 @@ export function step3ToClient4(
 
 export function step3ToHost4(
   fileHost: FileHost,
-  connection: RtcConnectionStep3,
+  connection: ReadableWritableChannelManagerTriple,
 ): HostRtcConnectionStep4 {
   const { peerId, readable, writable, channelManager } = connection;
 

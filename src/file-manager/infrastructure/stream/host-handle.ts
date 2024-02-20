@@ -1,13 +1,13 @@
+import { writePacket } from '@/util/stream/packet';
 import { RpcHostHandle } from '../rpc/host-handle';
 import { FileDownloadRequest } from '../rpc/protocol';
 import { FileSharingEncoder } from './codec';
 import { PacketType } from './protocol';
-import { writePacket } from './util/packet';
 
 export class StreamPacketHostHandle implements RpcHostHandle {
   constructor(
     private readonly writable: WritableStream<ArrayBuffer>,
-    private readonly encoder: FileSharingEncoder = new FileSharingEncoder(),
+    private readonly encoder = new FileSharingEncoder(),
   ) {}
 
   async sendGetInformationRequest(): Promise<void> {

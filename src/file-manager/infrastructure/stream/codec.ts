@@ -1,13 +1,13 @@
 /* eslint-disable camelcase */
 import { SharedFileMetadata } from '@/file-manager/domain/model/file';
 import { FileUpdateType } from '@/file-manager/domain/model/update';
-import { SharedFileMetadata as SharedFileMetadataProto } from '@/lib/proto/models';
 import {
   FileDownloadRequest as FileDownloadRequestProto,
   FileDownloadResponse as FileDownloadResponseProto,
   FileUpdate as FileUpdateProto,
   GetInformationResponse as GetInformationResponseProto,
-} from '@/lib/proto/packets';
+  SharedFileMetadata as SharedFileMetadataProto,
+} from '@/lib/proto/p2p/packets';
 import {
   FileDownloadRequest,
   FileUpdateNotification,

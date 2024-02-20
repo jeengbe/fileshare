@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+import { decodePacket } from '@/util/stream/packet';
+import { subscribeToReadable } from '@/util/stream/read';
 import { RpcHostHandler } from '../rpc/host-handler';
 import { FileSharingDecoder } from './codec';
 import { PacketType } from './protocol';
-import { decodePacket } from './util/packet';
-import { subscribeToReadable } from './util/read';
 
 export class StreamPacketHostHandler {
   constructor(
     private readonly rpcHandler: RpcHostHandler,
     private readonly readable: ReadableStream<ArrayBuffer>,
-    private readonly decoder: FileSharingDecoder = new FileSharingDecoder(),
+    private readonly decoder = new FileSharingDecoder(),
   ) {}
 
-  async subscribe(): Promise<void> {
-    await subscribeToReadable(this.readable, this.onMessage.bind(this));
+  subscribe(): Promise<void> {
+    return subscribeToReadable(this.readable, this.onMessage.bind(this));
   }
 
   private async onMessage(chunk: ArrayBuffer): Promise<void> {
@@ -25,6 +26,8 @@ export class StreamPacketHostHandler {
       case PacketType.FileDownloadRequest:
         await this.onFileDownloadRequest(payload);
         break;
+      default:
+        throw new Error('Unknown packet type');
     }
   }
 

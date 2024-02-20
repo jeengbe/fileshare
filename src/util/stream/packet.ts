@@ -1,9 +1,8 @@
-import { PacketType } from '../protocol';
-import { usingLocked } from './using';
+import { usingLocked } from '@/util/stream/using';
 
 export async function writePacket(
   writable: WritableStream<ArrayBuffer>,
-  type: PacketType,
+  type: number,
   payload: ArrayBuffer,
 ): Promise<void> {
   using writer = usingLocked(writable.getWriter());
@@ -21,7 +20,7 @@ export async function writePacket(
 }
 
 export function decodePacket(packet: ArrayBuffer): {
-  type: PacketType;
+  type: number;
   payload: ArrayBuffer;
 } {
   const view = new DataView(packet);
