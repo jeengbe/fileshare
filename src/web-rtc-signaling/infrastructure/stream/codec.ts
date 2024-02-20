@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-
 import {
   AnswerEvent as AnswerEventProto,
   GetInformationResponse as GetInformationResponseProto,
