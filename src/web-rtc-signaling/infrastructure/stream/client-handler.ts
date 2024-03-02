@@ -8,7 +8,7 @@ import { PacketType } from './protocol';
 export class StreamPacketClientHandler {
   constructor(
     private readonly rpcHandler: RpcClientHandler,
-    private readonly readable: ReadableStream<ArrayBuffer>,
+    private readonly readable: ReadableStream<ArrayBufferLike>,
     private readonly decoder = new SignalingServiceDecoder(),
   ) {}
 
@@ -16,7 +16,7 @@ export class StreamPacketClientHandler {
     return subscribeToReadable(this.readable, this.onMessage.bind(this));
   }
 
-  private async onMessage(chunk: ArrayBuffer): Promise<void> {
+  private async onMessage(chunk: ArrayBufferLike): Promise<void> {
     const { type, payload } = decodePacket(chunk);
 
     switch (type) {
@@ -46,25 +46,27 @@ export class StreamPacketClientHandler {
     }
   }
 
-  private async onOfferEvent(payload: ArrayBuffer): Promise<void> {
+  private async onOfferEvent(payload: ArrayBufferLike): Promise<void> {
     const event = this.decoder.decodeOfferEvent(new Uint8Array(payload));
 
     await this.rpcHandler.onOfferEvent(event);
   }
 
-  private async onAnswerEvent(payload: ArrayBuffer): Promise<void> {
+  private async onAnswerEvent(payload: ArrayBufferLike): Promise<void> {
     const event = this.decoder.decodeAnswerEvent(new Uint8Array(payload));
 
     await this.rpcHandler.onAnswerEvent(event);
   }
 
-  private async onIceCandidateEvent(payload: ArrayBuffer): Promise<void> {
+  private async onIceCandidateEvent(payload: ArrayBufferLike): Promise<void> {
     const event = this.decoder.decodeIceCandidateEvent(new Uint8Array(payload));
 
     await this.rpcHandler.onIceCandidateEvent(event);
   }
 
-  private async onGetInformationResponse(payload: ArrayBuffer): Promise<void> {
+  private async onGetInformationResponse(
+    payload: ArrayBufferLike,
+  ): Promise<void> {
     const response = this.decoder.decodeGetInformationResponse(
       new Uint8Array(payload),
     );

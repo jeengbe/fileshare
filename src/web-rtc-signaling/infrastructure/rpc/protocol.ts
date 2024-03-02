@@ -1,17 +1,17 @@
 import { PeerInfo } from '@/web-rtc-signaling/domain/model/info';
 
 export interface OfferEvent {
-  peerId: string;
+  fromId: string;
   offer: RTCSessionDescriptionInit;
 }
 
 export interface AnswerEvent {
-  peerId: string;
+  fromId: string;
   answer: RTCSessionDescriptionInit;
 }
 
 export interface IceCandidateEvent {
-  peerId: string;
+  fromId: string;
   candidate: RTCIceCandidate;
 }
 
@@ -20,16 +20,16 @@ export interface GetInformationResponse {
 }
 
 export interface SendOfferRequest {
-  peerId: string;
+  toId: string;
   offer: RTCSessionDescriptionInit;
 }
 
 export interface SendAnswerRequest {
-  peerId: string;
+  toId: string;
   answer: RTCSessionDescriptionInit;
 }
 
 export interface SendIceCandidateRequest {
-  peerId: string;
+  toId: string;
   candidate: RTCIceCandidate;
 }

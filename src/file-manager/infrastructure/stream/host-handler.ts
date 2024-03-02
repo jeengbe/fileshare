@@ -8,7 +8,7 @@ import { PacketType } from './protocol';
 export class StreamPacketHostHandler {
   constructor(
     private readonly rpcHandler: RpcHostHandler,
-    private readonly readable: ReadableStream<ArrayBuffer>,
+    private readonly readable: ReadableStream<ArrayBufferLike>,
     private readonly decoder = new FileSharingDecoder(),
   ) {}
 
@@ -16,7 +16,7 @@ export class StreamPacketHostHandler {
     return subscribeToReadable(this.readable, this.onMessage.bind(this));
   }
 
-  private async onMessage(chunk: ArrayBuffer): Promise<void> {
+  private async onMessage(chunk: ArrayBufferLike): Promise<void> {
     const { type, payload } = decodePacket(chunk);
 
     switch (type) {
@@ -35,7 +35,7 @@ export class StreamPacketHostHandler {
     await this.rpcHandler.onGetInformationRequest();
   }
 
-  private async onFileDownloadRequest(payload: ArrayBuffer): Promise<void> {
+  private async onFileDownloadRequest(payload: ArrayBufferLike): Promise<void> {
     const request = this.decoder.decodeFileDownloadRequest(
       new Uint8Array(payload),
     );

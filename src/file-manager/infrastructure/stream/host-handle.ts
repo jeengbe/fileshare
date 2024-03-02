@@ -6,7 +6,7 @@ import { PacketType } from './protocol';
 
 export class StreamPacketHostHandle implements RpcHostHandle {
   constructor(
-    private readonly writable: WritableStream<ArrayBuffer>,
+    private readonly writable: WritableStream<ArrayBufferLike>,
     private readonly encoder = new FileSharingEncoder(),
   ) {}
 

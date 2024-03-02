@@ -7,7 +7,6 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "build:sw": "tsc ./src/sw.ts --outDir ./public --target es2020 --module commonjs",
     "generate:proto": "./proto.sh"
   },
   "dependencies": {

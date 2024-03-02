@@ -1,9 +1,9 @@
 import { usingLocked } from '@/util/stream/using';
 
 export async function writePacket(
-  writable: WritableStream<ArrayBuffer>,
+  writable: WritableStream<ArrayBufferLike>,
   type: number,
-  payload: ArrayBuffer,
+  payload: ArrayBufferLike,
 ): Promise<void> {
   using writer = usingLocked(writable.getWriter());
 
@@ -19,9 +19,9 @@ export async function writePacket(
   await writer.write(headerAndPayload.buffer);
 }
 
-export function decodePacket(packet: ArrayBuffer): {
+export function decodePacket(packet: ArrayBufferLike): {
   type: number;
-  payload: ArrayBuffer;
+  payload: ArrayBufferLike;
 } {
   const view = new DataView(packet);
   const type = view.getUint8(0);

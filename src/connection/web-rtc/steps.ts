@@ -18,7 +18,7 @@ export interface RtcConnectionWithMetaChannel extends WithPeerId {
 }
 
 export interface ReadableWritableChannelManagerTriple
-  extends ReadableWritablePair<ArrayBuffer, ArrayBuffer>,
+  extends ReadableWritablePair<ArrayBufferLike, ArrayBufferLike>,
     WithPeerId {
   channelManager: ChannelManager;
 }

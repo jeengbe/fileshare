@@ -1,5 +1,5 @@
 export class ArrayBufferToUint8ArrayTransformStream extends TransformStream<
-  ArrayBuffer,
+  ArrayBufferLike,
   Uint8Array
 > {
   constructor() {

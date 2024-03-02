@@ -2,13 +2,13 @@ import { assert } from '@/util/assert';
 
 export function rtcToReadable(
   channel: RTCDataChannel,
-): ReadableStream<ArrayBuffer> {
+): ReadableStream<ArrayBufferLikeLike> {
   assert(channel.readyState === 'open', 'Channel must be open');
 
   return new ReadableStream({
     start(controller) {
       channel.onmessage = (event) => {
-        controller.enqueue(event.data as ArrayBuffer);
+        controller.enqueue(event.data as ArrayBufferLike);
       };
 
       channel.onclose = () => {
@@ -27,7 +27,7 @@ export function rtcToReadable(
 
 export function rtcToWritable(
   channel: RTCDataChannel,
-): WritableStream<ArrayBuffer> {
+): WritableStream<ArrayBufferLike> {
   assert(channel.readyState === 'open', 'Channel must be open');
 
   return new WritableStream({

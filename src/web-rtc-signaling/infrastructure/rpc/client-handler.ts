@@ -1,6 +1,5 @@
 import { PeerInfo } from '@/web-rtc-signaling/domain/model/info';
 import { Subject } from 'rxjs';
-import { RpcHostHandle } from './host-handle';
 import {
   AnswerEvent,
   GetInformationResponse,
@@ -21,8 +20,6 @@ export class RpcClientHandler {
   protected sendAnswerResolve: (() => void) | null = null;
 
   protected sendIceCandidateResolve: (() => void) | null = null;
-
-  constructor(protected readonly hostHandle: RpcHostHandle) {}
 
   async onOfferEvent(event: OfferEvent): Promise<void> {
     this.offerEvent$.next(event);

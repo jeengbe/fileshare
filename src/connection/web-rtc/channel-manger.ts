@@ -11,7 +11,9 @@ export class RtcChannelManager implements ChannelManager {
     return this.lastChannelId++;
   }
 
-  async getWritable(channelId: number): Promise<WritableStream<ArrayBuffer>> {
+  async getWritable(
+    channelId: number,
+  ): Promise<WritableStream<ArrayBufferLike>> {
     const channel = await createRtcChannel(
       this.connection,
       channelId.toString(),
@@ -21,7 +23,9 @@ export class RtcChannelManager implements ChannelManager {
     return rtcToWritable(channel);
   }
 
-  async getReadable(channelId: number): Promise<ReadableStream<ArrayBuffer>> {
+  async getReadable(
+    channelId: number,
+  ): Promise<ReadableStream<ArrayBufferLike>> {
     const channel = await createRtcChannel(
       this.connection,
       channelId.toString(),

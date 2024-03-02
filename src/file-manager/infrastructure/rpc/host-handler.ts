@@ -2,7 +2,7 @@ import { FileHost } from '@/file-manager/domain/service/file-host';
 import { RpcClientHandle } from './client-handle';
 import { FileDownloadRequest } from './protocol';
 
-export class RpcHostHandler implements RpcHostHandler {
+export class RpcHostHandler {
   constructor(
     private readonly fileHost: FileHost,
     private readonly clientHandle: RpcClientHandle,

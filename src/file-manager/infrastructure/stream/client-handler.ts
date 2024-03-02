@@ -7,7 +7,6 @@ import { RpcClientHandler } from '../rpc/client-handler';
 import { FileDownloadResponse } from '../rpc/protocol';
 import { FileSharingDecoder } from './codec';
 import { PacketType } from './protocol';
-import { ArrayBufferToUint8ArrayTransformStream } from './util/array-buffer-uint-8-transform';
 
 export class StreamPacketClientHandler {
   public readonly closePromise: Promise<void>;
@@ -16,7 +15,7 @@ export class StreamPacketClientHandler {
 
   constructor(
     private readonly rpcHandler: RpcClientHandler,
-    private readonly readable: ReadableStream<ArrayBuffer>,
+    private readonly readable: ReadableStream<ArrayBufferLike>,
     private readonly channelManager: ChannelManager,
     private readonly decoder = new FileSharingDecoder(),
   ) {
@@ -43,7 +42,7 @@ export class StreamPacketClientHandler {
     };
   }
 
-  private async onMessage(chunk: ArrayBuffer): Promise<void> {
+  private async onMessage(chunk: ArrayBufferLike): Promise<void> {
     const { type, payload } = decodePacket(chunk);
 
     switch (type) {
@@ -61,7 +60,9 @@ export class StreamPacketClientHandler {
     }
   }
 
-  private async onGetInformationResponse(payload: ArrayBuffer): Promise<void> {
+  private async onGetInformationResponse(
+    payload: ArrayBufferLike,
+  ): Promise<void> {
     const response = this.decoder.decodeGetInformationResponse(
       new Uint8Array(payload),
     );
@@ -69,7 +70,9 @@ export class StreamPacketClientHandler {
     await this.rpcHandler.onGetInformationResponse(response);
   }
 
-  private async onFileUpdateNotification(payload: ArrayBuffer): Promise<void> {
+  private async onFileUpdateNotification(
+    payload: ArrayBufferLike,
+  ): Promise<void> {
     const notification = this.decoder.decodeFileUpdateNotification(
       new Uint8Array(payload),
     );
@@ -77,7 +80,9 @@ export class StreamPacketClientHandler {
     await this.rpcHandler.onFileUpdate(notification);
   }
 
-  private async onFileDownloadResponse(payload: ArrayBuffer): Promise<void> {
+  private async onFileDownloadResponse(
+    payload: ArrayBufferLike,
+  ): Promise<void> {
     const responsePacket = this.decoder.decodeFileDownloadResponse(
       new Uint8Array(payload),
     );

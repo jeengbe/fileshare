@@ -1,8 +1,10 @@
-export function wsToReadable(socket: WebSocket): ReadableStream<ArrayBuffer> {
+export function wsToReadable(
+  socket: WebSocket,
+): ReadableStream<ArrayBufferLike> {
   return new ReadableStream({
     start(controller) {
       socket.onmessage = (event) => {
-        controller.enqueue(event.data as ArrayBuffer);
+        controller.enqueue(event.data as ArrayBufferLike);
       };
 
       socket.onclose = () => {
@@ -19,7 +21,9 @@ export function wsToReadable(socket: WebSocket): ReadableStream<ArrayBuffer> {
   });
 }
 
-export function wsToWritable(socket: WebSocket): WritableStream<ArrayBuffer> {
+export function wsToWritable(
+  socket: WebSocket,
+): WritableStream<ArrayBufferLike> {
   return new WritableStream({
     write(chunk) {
       socket.send(chunk);

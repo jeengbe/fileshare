@@ -39,7 +39,7 @@ export function establishConnectionIncoming(
     });
 
     return {
-      peerId: request.peerId,
+      peerId: request.fromId,
       connection,
     };
   };
@@ -47,15 +47,15 @@ export function establishConnectionIncoming(
 
 export function establishConnectionOutgoing(
   signalingServer: WebRtcSignalingServer,
-): (peerId: string) => Promise<RawRtcConnection> {
-  return async (peerId) => {
+): (fromId: string) => Promise<RawRtcConnection> {
+  return async (toId) => {
     const connection = new RTCPeerConnection(signalingServer.info.rtcConfig);
 
     const offer = await connection.createOffer();
     await connection.setLocalDescription(offer);
 
     const response = await signalingServer.sendRequest({
-      peerId,
+      toId,
       offer,
     });
 
@@ -84,7 +84,7 @@ export function establishConnectionOutgoing(
     });
 
     return {
-      peerId,
+      peerId: toId,
       connection,
       offer,
     };

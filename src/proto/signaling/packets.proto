@@ -17,26 +17,26 @@ enum RtcSessionDescriptionType {
   RTC_SESSION_DESCRIPTION_TYPE_ROLLBACK = 4;
 }
 
-message IceCandidate {
+message RtcIceCandidate {
   string candidate = 1;
   string sdp_mid = 2;
-  int32 sdp_mline_index = 3;
+  int32 sdp_m_line_index = 3;
   string username_fragment = 4;
 }
 
 message OfferEvent {
-  string peer_id = 1;
+  string from_id = 1;
   RtcSessionDescriptionInit offer = 2;
 }
 
 message AnswerEvent {
-  string peer_id = 1;
+  string from_id = 1;
   RtcSessionDescriptionInit answer = 2;
 }
 
 message IceCandidateEvent {
-  string peer_id = 1;
-  IceCandidate candidate = 2;
+  string from_id = 1;
+  RtcIceCandidate candidate = 2;
 }
 
 message GetInformationResponse {
@@ -45,16 +45,16 @@ message GetInformationResponse {
 }
 
 message SendOfferRequest {
-  string peer_id = 1;
+  string to_id = 1;
   RtcSessionDescriptionInit offer = 2;
 }
 
 message SendAnswerRequest {
-  string peer_id = 1;
+  string to_id = 1;
   RtcSessionDescriptionInit answer = 2;
 }
 
 message SendIceCandidateRequest {
-  string peer_id = 1;
-  IceCandidate candidate = 2;
+  string to_id = 1;
+  RtcIceCandidate candidate = 2;
 }

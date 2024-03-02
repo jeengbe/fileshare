@@ -19,7 +19,7 @@ import { map, mergeMap } from 'rxjs';
 import { ReceiveHost } from './host';
 
 async function createSignalingWebSocket(): Promise<WebSocket> {
-  const webSocket = new WebSocket('wss://localhost:4000');
+  const webSocket = new WebSocket('ws://localhost:4000');
 
   webSocket.binaryType = 'arraybuffer';
 

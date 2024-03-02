@@ -4,6 +4,7 @@ import {
   GetInformationResponse as GetInformationResponseProto,
   IceCandidateEvent as IceCandidateEventProto,
   OfferEvent as OfferEventProto,
+  RtcIceCandidate as RtcIceCandidateProto,
   RtcSessionDescriptionType as RtcSdpTypeProto,
   RtcSessionDescriptionInit as RtcSessionDescriptionInitProto,
   SendAnswerRequest as SendAnswerRequestProto,
@@ -23,22 +24,22 @@ import {
 export class SignalingServiceEncoder {
   encodeOfferEvent(event: OfferEvent): Uint8Array {
     return OfferEventProto.fromObject({
-      peer_id: event.peerId,
+      peer_id: event.fromId,
       offer: encodeRtcSessionDescriptionInit(event.offer),
     }).serialize();
   }
 
   encodeAnswerEvent(event: AnswerEvent): Uint8Array {
     return AnswerEventProto.fromObject({
-      peer_id: event.peerId,
+      peer_id: event.fromId,
       answer: encodeRtcSessionDescriptionInit(event.answer),
     }).serialize();
   }
 
   encodeIceCandidateEvent(event: IceCandidateEvent): Uint8Array {
     return IceCandidateEventProto.fromObject({
-      peer_id: event.peerId,
-      candidate: event.candidate.toJSON(),
+      peer_id: event.toId,
+      candidate: encodeRtcIceCandidate(event.candidate),
     }).serialize();
   }
 
@@ -55,22 +56,22 @@ export class SignalingServiceEncoder {
 
   encodeSendOfferRequest(request: SendOfferRequest): Uint8Array {
     return SendOfferRequestProto.fromObject({
-      peer_id: request.peerId,
+      peer_id: request.toId,
       offer: encodeRtcSessionDescriptionInit(request.offer),
     }).serialize();
   }
 
   encodeSendAnswerRequest(request: SendAnswerRequest): Uint8Array {
     return SendAnswerRequestProto.fromObject({
-      peer_id: request.peerId,
+      peer_id: request.toId,
       answer: encodeRtcSessionDescriptionInit(request.answer),
     }).serialize();
   }
 
   encodeSendIceCandidateRequest(request: SendIceCandidateRequest): Uint8Array {
     return SendIceCandidateRequestProto.fromObject({
-      peer_id: request.peerId,
-      candidate: request.candidate.toJSON(),
+      peer_id: request.toId,
+      candidate: encodeRtcIceCandidate(request.candidate),
     }).serialize();
   }
 }
@@ -80,7 +81,7 @@ export class SignalingServiceDecoder {
     const proto = OfferEventProto.deserialize(data);
 
     return {
-      peerId: proto.peer_id,
+      fromId: proto.peer_id,
       offer: decodeRtcSessionDescriptionInit(proto.offer),
     };
   }
@@ -89,7 +90,7 @@ export class SignalingServiceDecoder {
     const proto = AnswerEventProto.deserialize(data);
 
     return {
-      peerId: proto.peer_id,
+      fromId: proto.peer_id,
       answer: decodeRtcSessionDescriptionInit(proto.answer),
     };
   }
@@ -98,8 +99,8 @@ export class SignalingServiceDecoder {
     const proto = IceCandidateEventProto.deserialize(data);
 
     return {
-      peerId: proto.peer_id,
-      candidate: new RTCIceCandidate(proto.candidate),
+      toId: proto.peer_id,
+      candidate: decodeRtcIceCandidate(proto.candidate),
     };
   }
 
@@ -124,7 +125,7 @@ export class SignalingServiceDecoder {
     const proto = SendOfferRequestProto.deserialize(data);
 
     return {
-      peerId: proto.peer_id,
+      toId: proto.peer_id,
       offer: decodeRtcSessionDescriptionInit(proto.offer),
     };
   }
@@ -133,7 +134,7 @@ export class SignalingServiceDecoder {
     const proto = SendAnswerRequestProto.deserialize(data);
 
     return {
-      peerId: proto.peer_id,
+      toId: proto.peer_id,
       answer: decodeRtcSessionDescriptionInit(proto.answer),
     };
   }
@@ -142,8 +143,8 @@ export class SignalingServiceDecoder {
     const proto = SendIceCandidateRequestProto.deserialize(data);
 
     return {
-      peerId: proto.peer_id,
-      candidate: new RTCIceCandidate(proto.candidate),
+      toId: proto.peer_id,
+      candidate: decodeRtcIceCandidate(proto.candidate),
     };
   }
 }
@@ -170,6 +171,19 @@ function encodeRtcSessionDescriptionType(type: RTCSdpType): RtcSdpTypeProto {
   }
 }
 
+function encodeRtcIceCandidate(
+  candidate: RTCIceCandidate,
+): RtcIceCandidateProto {
+  const json = candidate.toJSON();
+
+  return RtcIceCandidateProto.fromObject({
+    candidate: json.candidate,
+    sdp_mid: json.sdpMid ?? undefined,
+    sdp_m_line_index: json.sdpMLineIndex ?? undefined,
+    username_fragment: json.usernameFragment ?? undefined,
+  });
+}
+
 function decodeRtcSessionDescriptionInit(
   proto: RtcSessionDescriptionInitProto,
 ): RTCSessionDescriptionInit {
@@ -192,4 +206,13 @@ function decodeRtcSessionDescriptionType(proto: RtcSdpTypeProto): RTCSdpType {
     case RtcSdpTypeProto.RTC_SESSION_DESCRIPTION_TYPE_UNKNOWN:
       throw new Error('Unknown RTCSessionDescriptionType');
   }
+}
+
+function decodeRtcIceCandidate(proto: RtcIceCandidateProto): RTCIceCandidate {
+  return new RTCIceCandidate({
+    candidate: proto.candidate,
+    sdpMid: proto.sdp_mid,
+    sdpMLineIndex: proto.sdp_m_line_index,
+    usernameFragment: proto.username_fragment,
+  });
 }

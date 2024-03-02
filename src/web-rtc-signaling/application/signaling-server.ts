@@ -5,7 +5,7 @@ import { Subject, filter, firstValueFrom, map } from 'rxjs';
 export interface IncomingWebRtcConnection {
   iceCandidate$: Subject<RTCIceCandidate>;
 
-  peerId: string;
+  fromId: string;
   offer: RTCSessionDescriptionInit;
 
   sendAnswer(answer: RTCSessionDescriptionInit): Promise<void>;
@@ -13,7 +13,7 @@ export interface IncomingWebRtcConnection {
 }
 
 export interface OutgoingWebRtcConnectionRequest {
-  peerId: string;
+  toId: string;
   offer: RTCSessionDescriptionInit;
 }
 
@@ -30,27 +30,27 @@ export class WebRtcSignalingServer {
 
   constructor(
     public readonly info: PeerInfo,
-    private readonly client: SignalingService,
+    private readonly service: SignalingService,
   ) {
-    client.offer$
+    service.offer$
       .pipe(
-        map(([peerId, offer]): IncomingWebRtcConnection => {
+        map(([fromId, offer]): IncomingWebRtcConnection => {
           const iceCandidate$ = new Subject<RTCIceCandidate>();
 
-          client.iceCandidate$
+          service.iceCandidate$
             .pipe(
-              filter(([candidatePeerId]) => candidatePeerId === peerId),
+              filter(([candidatePeerId]) => candidatePeerId === fromId),
               map(([, candidate]) => candidate),
             )
             .subscribe(iceCandidate$);
 
           return {
             iceCandidate$,
-            peerId,
+            fromId,
             offer,
-            sendAnswer: (answer) => client.sendAnswer(peerId, answer),
+            sendAnswer: (answer) => service.sendAnswer(fromId, answer),
             sendIceCandidate: (candidate) =>
-              client.sendIceCandidate(peerId, candidate),
+              service.sendIceCandidate(fromId, candidate),
           };
         }),
       )
@@ -60,22 +60,22 @@ export class WebRtcSignalingServer {
   async sendRequest(
     request: OutgoingWebRtcConnectionRequest,
   ): Promise<OutgoingWebRtcConnection> {
-    const { peerId, offer } = request;
+    const { toId, offer } = request;
 
-    await this.client.sendOffer(peerId, offer);
+    await this.service.sendOffer(toId, offer);
 
     const iceCandidate$ = new Subject<RTCIceCandidate>();
 
-    this.client.iceCandidate$
+    this.service.iceCandidate$
       .pipe(
-        filter(([candidatePeerId]) => candidatePeerId === peerId),
+        filter(([candidatePeerId]) => candidatePeerId === toId),
         map(([, candidate]) => candidate),
       )
       .subscribe(iceCandidate$);
 
     const answerPromise = firstValueFrom(
-      this.client.answer$.pipe(
-        filter(([answerPeerId]) => answerPeerId === peerId),
+      this.service.answer$.pipe(
+        filter(([answerPeerId]) => answerPeerId === toId),
         map(([, answer]) => answer),
       ),
     );
@@ -84,7 +84,7 @@ export class WebRtcSignalingServer {
       iceCandidate$,
       answer: answerPromise,
       sendIceCandidate: (candidate) =>
-        this.client.sendIceCandidate(peerId, candidate),
+        this.service.sendIceCandidate(toId, candidate),
     };
   }
 }

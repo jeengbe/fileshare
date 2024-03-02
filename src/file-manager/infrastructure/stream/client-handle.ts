@@ -11,7 +11,7 @@ import { FileDownloadResponsePacket, PacketType } from './protocol';
 
 export class StreamPacketClientHandle implements RpcClientHandle {
   constructor(
-    private readonly writable: WritableStream<ArrayBuffer>,
+    private readonly writable: WritableStream<ArrayBufferLike>,
     private readonly channelManager: ChannelManager,
     private readonly encoder = new FileSharingEncoder(),
   ) {}
