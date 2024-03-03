@@ -47,21 +47,23 @@ export function rtcToWritable(
     }
 
     let onBufferedAmountLow!: () => void;
-    let onError!: (event: Event) => void;
+    let onClose!: () => void;
 
     const promise = new Promise<void>((resolve, reject) => {
       onBufferedAmountLow = resolve;
-      onError = reject;
+      onClose = () => {
+        reject(new Error('Failed to send data'));
+      };
     });
 
     channel.addEventListener('bufferedamountlow', onBufferedAmountLow);
-    channel.addEventListener('error', onError);
+    channel.addEventListener('close', onClose);
 
     try {
       await promise;
     } finally {
       channel.removeEventListener('bufferedamountlow', onBufferedAmountLow);
-      channel.removeEventListener('error', onError);
+      channel.removeEventListener('close', onClose);
     }
   }
 }

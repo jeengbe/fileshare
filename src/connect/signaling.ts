@@ -9,21 +9,27 @@ export async function createSignalingWebSocket(): Promise<WebSocket> {
   webSocket.binaryType = 'arraybuffer';
 
   let onOpen!: () => void;
-  let onError!: (event: Event) => void;
+  let onClose!: (event: CloseEvent) => void;
 
   const promise = new Promise<void>((resolve, reject) => {
     onOpen = resolve;
-    onError = reject;
+    onClose = (event: CloseEvent) => {
+      reject(
+        new Error('Failed to connect to signaling server', {
+          cause: event.reason,
+        }),
+      );
+    };
   });
 
   webSocket.addEventListener('open', onOpen);
-  webSocket.addEventListener('error', onError);
+  webSocket.addEventListener('close', onClose);
 
   try {
     await promise;
   } finally {
     webSocket.removeEventListener('open', onOpen);
-    webSocket.removeEventListener('error', onError);
+    webSocket.removeEventListener('close', onClose);
   }
 
   return webSocket;
