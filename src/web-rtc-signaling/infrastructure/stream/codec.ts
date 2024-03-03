@@ -24,21 +24,21 @@ import {
 export class SignalingServiceEncoder {
   encodeOfferEvent(event: OfferEvent): Uint8Array {
     return OfferEventProto.fromObject({
-      peer_id: event.fromId,
+      from_id: event.fromId,
       offer: encodeRtcSessionDescriptionInit(event.offer),
     }).serialize();
   }
 
   encodeAnswerEvent(event: AnswerEvent): Uint8Array {
     return AnswerEventProto.fromObject({
-      peer_id: event.fromId,
+      from_id: event.fromId,
       answer: encodeRtcSessionDescriptionInit(event.answer),
     }).serialize();
   }
 
   encodeIceCandidateEvent(event: IceCandidateEvent): Uint8Array {
     return IceCandidateEventProto.fromObject({
-      peer_id: event.toId,
+      from_id: event.fromId,
       candidate: encodeRtcIceCandidate(event.candidate),
     }).serialize();
   }
@@ -56,21 +56,21 @@ export class SignalingServiceEncoder {
 
   encodeSendOfferRequest(request: SendOfferRequest): Uint8Array {
     return SendOfferRequestProto.fromObject({
-      peer_id: request.toId,
+      to_id: request.toId,
       offer: encodeRtcSessionDescriptionInit(request.offer),
     }).serialize();
   }
 
   encodeSendAnswerRequest(request: SendAnswerRequest): Uint8Array {
     return SendAnswerRequestProto.fromObject({
-      peer_id: request.toId,
+      to_id: request.toId,
       answer: encodeRtcSessionDescriptionInit(request.answer),
     }).serialize();
   }
 
   encodeSendIceCandidateRequest(request: SendIceCandidateRequest): Uint8Array {
     return SendIceCandidateRequestProto.fromObject({
-      peer_id: request.toId,
+      to_id: request.toId,
       candidate: encodeRtcIceCandidate(request.candidate),
     }).serialize();
   }
@@ -81,7 +81,7 @@ export class SignalingServiceDecoder {
     const proto = OfferEventProto.deserialize(data);
 
     return {
-      fromId: proto.peer_id,
+      fromId: proto.from_id,
       offer: decodeRtcSessionDescriptionInit(proto.offer),
     };
   }
@@ -90,7 +90,7 @@ export class SignalingServiceDecoder {
     const proto = AnswerEventProto.deserialize(data);
 
     return {
-      fromId: proto.peer_id,
+      fromId: proto.from_id,
       answer: decodeRtcSessionDescriptionInit(proto.answer),
     };
   }
@@ -99,7 +99,7 @@ export class SignalingServiceDecoder {
     const proto = IceCandidateEventProto.deserialize(data);
 
     return {
-      toId: proto.peer_id,
+      fromId: proto.from_id,
       candidate: decodeRtcIceCandidate(proto.candidate),
     };
   }
@@ -125,7 +125,7 @@ export class SignalingServiceDecoder {
     const proto = SendOfferRequestProto.deserialize(data);
 
     return {
-      toId: proto.peer_id,
+      toId: proto.to_id,
       offer: decodeRtcSessionDescriptionInit(proto.offer),
     };
   }
@@ -134,7 +134,7 @@ export class SignalingServiceDecoder {
     const proto = SendAnswerRequestProto.deserialize(data);
 
     return {
-      toId: proto.peer_id,
+      toId: proto.to_id,
       answer: decodeRtcSessionDescriptionInit(proto.answer),
     };
   }
@@ -143,7 +143,7 @@ export class SignalingServiceDecoder {
     const proto = SendIceCandidateRequestProto.deserialize(data);
 
     return {
-      toId: proto.peer_id,
+      toId: proto.to_id,
       candidate: decodeRtcIceCandidate(proto.candidate),
     };
   }

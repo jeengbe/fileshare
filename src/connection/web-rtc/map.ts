@@ -72,21 +72,22 @@ export function step3ToClient4(
   };
 }
 
-export function step3ToHost4(
-  fileHost: FileHost,
-  connection: ReadableWritableChannelManagerTriple,
-): HostRtcConnectionStep4 {
-  const { peerId, readable, writable, channelManager } = connection;
+export function step3ToHost4(fileHost: FileHost) {
+  return (
+    connection: ReadableWritableChannelManagerTriple,
+  ): HostRtcConnectionStep4 => {
+    const { peerId, readable, writable, channelManager } = connection;
 
-  const clientHandle = new StreamPacketClientHandle(writable, channelManager);
+    const clientHandle = new StreamPacketClientHandle(writable, channelManager);
 
-  const host = new RpcHostHandler(fileHost, clientHandle);
+    const host = new RpcHostHandler(fileHost, clientHandle);
 
-  const hostHandler = new StreamPacketHostHandler(host, readable);
+    const hostHandler = new StreamPacketHostHandler(host, readable);
 
-  return {
-    peerId,
-    clientHandle,
-    hostHandler,
+    return {
+      peerId,
+      clientHandle,
+      hostHandler,
+    };
   };
 }

@@ -1,81 +1,110 @@
-import { LocalFileHost } from '@/file-manager/application/local/file-host';
-import { FileManager } from '@/file-manager/application/local/file-manager';
-import { RpcHostHandlerImpl } from '@/file-manager/application/rpc/host-handler';
-import { StreamPacketClientHandle } from '@/file-manager/infrastructure/rtc/packet/client-handle';
-import { StreamPacketHostHandler } from '@/file-manager/infrastructure/stream/packet/host-handler';
-import { RtcConnection } from '@/file-manager/infrastructure/web-rtc/connection';
-import { useMemo, useRef } from 'react';
+'use client';
+
+import {
+  rawToWithMetaChannel,
+  step3ToHost4,
+  withMetaChannelToReadableWritableChannelManager,
+} from '@/connection/web-rtc/map';
+import { establishConnectionIncoming } from '@/connection/web-rtc/web-rtc';
+import { wsToWritable } from '@/connection/ws/util/ws-readable-writable';
+import { LocalFileHost } from '@/file-manager/infrastructure/local/file-host';
+import { FileManager } from '@/file-manager/infrastructure/local/file-manager';
+import { StreamPacketHostHandler } from '@/file-manager/infrastructure/stream/host-handler';
+import { useLater } from '@/util/use-later';
+import { WebRtcSignalingServer } from '@/web-rtc-signaling/application/signaling-server';
+import { RpcSignalingService } from '@/web-rtc-signaling/infrastructure/rpc/signaling-service';
+import { StreamPacketClientHandler as SignalingStreamPacketClientHandler } from '@/web-rtc-signaling/infrastructure/stream/client-handler';
+import { StreamPacketHostHandle } from '@/web-rtc-signaling/infrastructure/stream/host-handle';
+import { useEffect, useMemo, useState } from 'react';
+import { map, mergeMap } from 'rxjs';
+
+async function createSignalingWebSocket(): Promise<WebSocket> {
+  const webSocket = new WebSocket('ws://localhost:8080');
+
+  webSocket.binaryType = 'arraybuffer';
+
+  await new Promise((resolve, reject) => {
+    webSocket.onopen = resolve;
+    webSocket.onerror = reject;
+  });
+  webSocket.onopen = null;
+  webSocket.onerror = null;
+
+  return webSocket;
+}
 
 export default function Page() {
-  const fileRef = useRef<HTMLInputElement>(null);
-
   const fileManager = useMemo(() => new FileManager(), []);
-  const localFileHost = useMemo(
-    () => new LocalFileHost(fileManager),
+  const fileHost = useMemo(
+    () => new LocalFileHost('ado', fileManager),
     [fileManager],
   );
 
-  const onClientRequest = async (
-    clientDescription: RTCSessionDescriptionInit,
-    sendAnswer: (answer: RTCSessionDescriptionInit) => Promise<void>,
-    sendCandidate: (candidate: RTCIceCandidate) => Promise<void>,
-  ) => {
-    const connection = new RTCPeerConnection();
-    await connection.setRemoteDescription(clientDescription);
+  const [clients, setClients] = useState<
+    ReadonlyMap<string, [packetHandler: StreamPacketHostHandler]>
+  >(new Map());
 
-    const hostDescription = await connection.createAnswer();
-    await connection.setLocalDescription(hostDescription);
+  const signalingServer = useLater(() =>
+    createSignalingWebSocket().then(async (ws) => {
+      const writable = wsToWritable(ws);
 
-    await sendAnswer(hostDescription);
+      const hostHandle = new StreamPacketHostHandle(writable);
+      const signalingService = new RpcSignalingService(hostHandle);
+      const packetHandler = new SignalingStreamPacketClientHandler(
+        signalingService,
+      );
 
-    connection.onicecandidate = async ({ candidate }) => {
-      if (!candidate) {
-        console.log('no candidate');
-        return;
-      }
+      ws.onmessage = ({ data }) =>
+        packetHandler.onMessage(data as ArrayBufferLike);
 
-      await sendCandidate(candidate);
-    };
-  };
+      const info = await signalingService.getInfo();
 
-  const onClientConnect = async (connection: RTCPeerConnection) => {
-    const metaChannel = connection.createDataChannel('meta', {
-      negotiated: true,
-      id: 0,
-    });
+      return new WebRtcSignalingServer(info, signalingService);
+    }),
+  );
 
-    await new Promise((resolve) => (metaChannel.onopen = resolve));
-    metaChannel.onopen = null;
+  useEffect(() => {
+    if (signalingServer) {
+      const subscription = signalingServer.incoming$
+        .pipe(mergeMap(establishConnectionIncoming(signalingServer)))
+        .pipe(
+          mergeMap(rawToWithMetaChannel),
+          map(withMetaChannelToReadableWritableChannelManager),
+          map(step3ToHost4(fileHost)),
+        )
+        .subscribe(({ peerId, hostHandler }) => {
+          setClients((clients) => new Map(clients).set(peerId, [hostHandler]));
 
-    const { writable, readable, channelManager } = new RtcConnection(
-      connection,
-      metaChannel,
-    );
+          void hostHandler.closePromise.then(() => {
+            setClients((clients) => {
+              const newHosts = new Map(clients);
+              newHosts.delete(peerId);
+              return newHosts;
+            });
+          });
+        });
 
-    const clientHandle = new StreamPacketClientHandle(writable, channelManager);
-
-    const hostHandler = new RpcHostHandlerImpl(localFileHost, clientHandle);
-
-    const packetHandler = new StreamPacketHostHandler(hostHandler, readable);
-
-    await packetHandler.subscribe();
-  };
+      return () => subscription.unsubscribe();
+    }
+  }, [signalingServer, fileHost]);
 
   return (
     <>
-      <form
-        onSubmit={() => {
-          const file = fileRef.current?.files?.[0];
-
+      ID: {signalingServer?.info.userId}
+      {Array.from(clients).map(([peerId]) => (
+        <div key={peerId}>
+          <h1>{peerId}</h1>
+        </div>
+      ))}
+      <input
+        type='file'
+        onChange={({ target }) => {
+          const file = target.files?.[0];
           if (file) {
             fileManager.addFile(file);
-            fileRef.current.value = '';
           }
         }}
-      >
-        <input type='file' ref={fileRef} />
-        <button type='submit'>Send</button>
-      </form>
+      />
     </>
   );
 }

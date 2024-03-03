@@ -1,6 +1,10 @@
 'use client';
 
-// @ts-expect-error -- Polyfill
-Symbol.dispose ??= Symbol('Symbol.dispose');
-// @ts-expect-error -- Polyfill
-Symbol.asyncDispose ??= Symbol('Symbol.asyncDispose');
+export function DisposePolyfill() {
+  // @ts-expect-error -- Polyfill
+  Symbol.dispose ??= Symbol('Symbol.dispose');
+  // @ts-expect-error -- Polyfill
+  Symbol.asyncDispose ??= Symbol('Symbol.asyncDispose');
+
+  return null;
+}

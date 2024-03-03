@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 import { decodePacket } from '@/util/stream/packet';
-import { subscribeToReadable } from '@/util/stream/read';
 import { RpcClientHandler } from '../rpc/client-handler';
 import { SignalingServiceDecoder } from './codec';
 import { PacketType } from './protocol';
@@ -8,16 +7,13 @@ import { PacketType } from './protocol';
 export class StreamPacketClientHandler {
   constructor(
     private readonly rpcHandler: RpcClientHandler,
-    private readonly readable: ReadableStream<ArrayBufferLike>,
     private readonly decoder = new SignalingServiceDecoder(),
   ) {}
 
-  subscribe(): Promise<void> {
-    return subscribeToReadable(this.readable, this.onMessage.bind(this));
-  }
-
-  private async onMessage(chunk: ArrayBufferLike): Promise<void> {
+  async onMessage(chunk: ArrayBufferLike): Promise<void> {
     const { type, payload } = decodePacket(chunk);
+
+    console.log(type, payload);
 
     switch (type) {
       case PacketType.OfferEvent:

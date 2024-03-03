@@ -7,20 +7,16 @@ import { RpcClientHandler } from './client-handler';
 export class RpcFileHost extends RpcClientHandler implements FileHost {
   getInformation(): Promise<HostInformation> {
     if (this.getInformationResolve !== null) {
-      throw new Error('Another listFilesMetadata request is in progress');
+      // throw new Error('Another listFilesMetadata request is in progress');
     }
 
     return new Promise((resolve, reject) => {
       this.getInformationResolve = resolve;
 
-      this.hostHandle
-        .sendGetInformationRequest()
-        .catch((err: Error) => {
-          reject(err);
-        })
-        .finally(() => {
-          this.getInformationResolve = null;
-        });
+      this.hostHandle.sendGetInformationRequest().catch((err: Error) => {
+        this.getInformationResolve = null;
+        reject(err);
+      });
     });
   }
 
@@ -30,7 +26,7 @@ export class RpcFileHost extends RpcClientHandler implements FileHost {
 
   downloadFile(fileId: string): Promise<ReadableStream<Uint8Array> | null> {
     if (this.downloadFileResolve !== null) {
-      throw new Error('Another downloadFile request is in progress');
+      // throw new Error('Another downloadFile request is in progress');
     }
 
     return new Promise((resolve, reject) => {
@@ -39,10 +35,8 @@ export class RpcFileHost extends RpcClientHandler implements FileHost {
       this.hostHandle
         .sendFileDownloadRequest({ fileId })
         .catch((err: Error) => {
-          reject(err);
-        })
-        .finally(() => {
           this.downloadFileResolve = null;
+          reject(err);
         });
     });
   }

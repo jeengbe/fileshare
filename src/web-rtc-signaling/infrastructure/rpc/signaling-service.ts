@@ -36,7 +36,7 @@ export class RpcSignalingService
 
   getInfo(): Promise<PeerInfo> {
     if (this.getInformationResolve !== null) {
-      throw new Error('Another getInformation request is in progress');
+      // throw new Error('Another getInformation request is in progress');
     }
 
     return new Promise((resolve, reject) => {
@@ -44,7 +44,6 @@ export class RpcSignalingService
 
       this.hostHandle.sendGetInformationRequest().catch((err: Error) => {
         this.getInformationResolve = null;
-
         reject(err);
       });
     });
@@ -52,7 +51,7 @@ export class RpcSignalingService
 
   sendOffer(toId: string, offer: RTCSessionDescriptionInit): Promise<void> {
     if (this.sendOfferResolve !== null) {
-      throw new Error('Another sendOffer request is in progress');
+      // throw new Error('Another sendOffer request is in progress');
     }
 
     return new Promise((resolve, reject) => {
@@ -61,17 +60,15 @@ export class RpcSignalingService
       this.hostHandle
         .sendSendOfferRequest({ toId, offer })
         .catch((err: Error) => {
-          reject(err);
-        })
-        .finally(() => {
           this.sendOfferResolve = null;
+          reject(err);
         });
     });
   }
 
   sendAnswer(toId: string, answer: RTCSessionDescriptionInit): Promise<void> {
     if (this.sendAnswerResolve !== null) {
-      throw new Error('Another sendAnswer request is in progress');
+      // throw new Error('Another sendAnswer request is in progress');
     }
 
     return new Promise((resolve, reject) => {
@@ -80,17 +77,15 @@ export class RpcSignalingService
       this.hostHandle
         .sendSendAnswerRequest({ toId, answer })
         .catch((err: Error) => {
-          reject(err);
-        })
-        .finally(() => {
           this.sendAnswerResolve = null;
+          reject(err);
         });
     });
   }
 
   sendIceCandidate(toId: string, candidate: RTCIceCandidate): Promise<void> {
     if (this.sendIceCandidateResolve !== null) {
-      throw new Error('Another sendIceCandidate request is in progress');
+      // throw new Error('Another sendIceCandidate request is in progress');
     }
 
     return new Promise((resolve, reject) => {
@@ -99,10 +94,8 @@ export class RpcSignalingService
       this.hostHandle
         .sendSendIceCandidateRequest({ toId, candidate })
         .catch((err: Error) => {
-          reject(err);
-        })
-        .finally(() => {
           this.sendIceCandidateResolve = null;
+          reject(err);
         });
     });
   }

@@ -7,6 +7,7 @@ import { RpcClientHandler } from '../rpc/client-handler';
 import { FileDownloadResponse } from '../rpc/protocol';
 import { FileSharingDecoder } from './codec';
 import { PacketType } from './protocol';
+import { ArrayBufferToUint8ArrayTransformStream } from './util/array-buffer-uint-8-transform';
 
 export class StreamPacketClientHandler {
   public readonly closePromise: Promise<void>;

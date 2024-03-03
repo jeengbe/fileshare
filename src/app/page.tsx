@@ -20,7 +20,7 @@ export default function Page() {
           </div>
           <div className='flex flex-col gap-4 items-center'>
             <Button className='w-full' asChild>
-              <Link href='/share'>Send</Link>
+              <Link href='/send'>Send</Link>
             </Button>
             <Button className='w-full' asChild>
               <Link href='/receive'>Receive</Link>

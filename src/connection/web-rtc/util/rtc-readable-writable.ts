@@ -2,7 +2,7 @@ import { assert } from '@/util/assert';
 
 export function rtcToReadable(
   channel: RTCDataChannel,
-): ReadableStream<ArrayBufferLikeLike> {
+): ReadableStream<ArrayBufferLike> {
   assert(channel.readyState === 'open', 'Channel must be open');
 
   return new ReadableStream({
