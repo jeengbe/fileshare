@@ -10,11 +10,12 @@ export type FileDownloader = (info: {
 }) => Promise<void>;
 
 let downloads = 0;
-const beforeUnload = (event: BeforeUnloadEvent) => {
+
+function beforeUnload(event: BeforeUnloadEvent) {
   event.preventDefault();
 
   return 'There are downloads in progress. They will be canceled if you leave the page.';
-};
+}
 
 export function useDownload(): FileDownloader | null {
   return async ({ stream, filename, size }) => {

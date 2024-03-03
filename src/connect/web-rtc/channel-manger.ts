@@ -1,4 +1,4 @@
-import { ChannelManager } from '../channel-manager';
+import { ChannelManager } from '../../util/channel-manager';
 import { createRtcChannel } from './util/create-rtc-channel';
 import { rtcToReadable, rtcToWritable } from './util/rtc-readable-writable';
 

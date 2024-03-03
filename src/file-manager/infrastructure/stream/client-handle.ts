@@ -1,4 +1,4 @@
-import { ChannelManager } from '@/connection/channel-manager';
+import { ChannelManager } from '@/connect/channel-manager';
 import { writePacket } from '@/util/stream/packet';
 import { Writer } from '@/util/writer';
 import { RpcClientHandle } from '../rpc/client-handle';

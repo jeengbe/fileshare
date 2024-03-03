@@ -1,29 +1,29 @@
 'use client';
 
-import { useSignaling } from '@/connection/connect';
 import { LocalFileHost } from '@/file-manager/infrastructure/local/file-host';
 import { FileManager } from '@/file-manager/infrastructure/local/file-manager';
+import { SignalingConnection, useSignaling } from '@/hooks/use-signaling';
 import { useMemo } from 'react';
 import { SendClient } from './client';
 
 export const Send = () => {
-  const s = useSignaling();
+  const signalingConnection = useSignaling();
 
-  return s ? (
-    <Idle id={s.info.userId} peers={s.peers} connect={s.connect} />
+  return signalingConnection ? (
+    <Idle signalingConnection={signalingConnection} />
   ) : (
     <Connecting />
   );
 };
 
 const Idle = ({
-  id,
-  peers,
-  connect,
+  signalingConnection: {
+    connect,
+    info: { userId },
+    peers,
+  },
 }: {
-  id: string;
-  peers: ReadonlyMap<string, RTCPeerConnection>;
-  connect: (peerId: string) => void;
+  signalingConnection: SignalingConnection;
 }) => {
   const fileManager = useMemo(() => new FileManager(), []);
   const fileHost = useMemo(
@@ -38,7 +38,7 @@ const Idle = ({
         <p className='text-center text-lg'>
           Share this ID with the person you want to send a file to:
         </p>
-        <p className='text-center text-lg font-bold'>{id}</p>
+        <p className='text-center text-lg font-bold'>{userId}</p>
 
         <input
           type='file'

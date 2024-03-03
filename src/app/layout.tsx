@@ -1,7 +1,7 @@
+import { DisposePolyfill } from '@/components/dispose-polyfill';
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { DisposePolyfill } from './symbol-dispose';
 
 const inter = Inter({ subsets: ['latin'] });
 

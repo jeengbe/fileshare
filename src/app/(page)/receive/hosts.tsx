@@ -1,26 +1,26 @@
 'use client';
 
-import { useSignaling } from '@/connection/connect';
+import { SignalingConnection, useSignaling } from '@/hooks/use-signaling';
 import { ReceiveHost } from './host';
 
 export const Receive = () => {
-  const s = useSignaling();
+  const signalingConnection = useSignaling();
 
-  return s ? (
-    <Idle id={s.info.userId} peers={s.peers} connect={s.connect} />
+  return signalingConnection ? (
+    <Idle signalingConnection={signalingConnection} />
   ) : (
     <Connecting />
   );
 };
 
 const Idle = ({
-  id,
-  peers,
-  connect,
+  signalingConnection: {
+    connect,
+    info: { userId },
+    peers,
+  },
 }: {
-  id: string;
-  peers: ReadonlyMap<string, RTCPeerConnection>;
-  connect: (peerId: string) => void;
+  signalingConnection: SignalingConnection;
 }) => (
   <>
     <section className='flex flex-col gap-12 shadow-sm rounded-lg p-16 py-12 pb-14 border bg-card text-card-foreground'>
@@ -28,7 +28,7 @@ const Idle = ({
       <p className='text-center text-lg'>
         Share this ID with the person you want to receive a file from:
       </p>
-      <p className='text-center text-lg font-bold'>{id}</p>
+      <p className='text-center text-lg font-bold'>{userId}</p>
 
       <form
         onSubmit={(e) => {

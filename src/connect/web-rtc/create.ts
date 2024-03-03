@@ -1,5 +1,5 @@
 import { assert } from '@/util/assert';
-import { ChannelManager } from '../channel-manager';
+import { ChannelManager } from '@/util/channel-manager';
 import { RtcChannelManager } from './channel-manger';
 import { createRtcChannel } from './util/create-rtc-channel';
 

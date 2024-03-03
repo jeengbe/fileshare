@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
-import { ChannelManager } from '@/connection/channel-manager';
+import { ChannelManager } from '@/connect/channel-manager';
 import { decodePacket } from '@/util/stream/packet';
 import { RpcClientHandler } from '../rpc/client-handler';
 import { FileDownloadResponse } from '../rpc/protocol';

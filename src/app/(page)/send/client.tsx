@@ -1,7 +1,7 @@
 import {
   createChannelManager,
   createMetaChannel,
-} from '@/connection/web-rtc/map';
+} from '@/connect/web-rtc/create';
 import { FileHost } from '@/file-manager/domain/service/file-host';
 import { RpcHostHandler } from '@/file-manager/infrastructure/rpc/host-handler';
 import { StreamPacketClientHandle } from '@/file-manager/infrastructure/stream/client-handle';

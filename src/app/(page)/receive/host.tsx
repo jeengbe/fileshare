@@ -1,8 +1,7 @@
-import { useDownload } from '@/components/download';
 import {
   createChannelManager,
   createMetaChannel,
-} from '@/connection/web-rtc/map';
+} from '@/connect/web-rtc/create';
 import { SharedFileMetadata } from '@/file-manager/domain/model/file';
 import { HostInformation } from '@/file-manager/domain/model/host-information';
 import { FileUpdateType } from '@/file-manager/domain/model/update';
@@ -10,6 +9,7 @@ import { FileHost } from '@/file-manager/domain/service/file-host';
 import { RpcFileHost } from '@/file-manager/infrastructure/rpc/file-host';
 import { StreamPacketClientHandler } from '@/file-manager/infrastructure/stream/client-handler';
 import { StreamPacketHostHandle } from '@/file-manager/infrastructure/stream/host-handle';
+import { useDownload } from '@/hooks/use-download';
 import { useLater } from '@/util/use-later';
 import { useCallback, useEffect, useState } from 'react';
 
