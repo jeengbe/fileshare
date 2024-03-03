@@ -7,5 +7,6 @@ export enum PacketType {
 }
 
 export interface FileDownloadResponsePacket {
+  messageId: string;
   channelId: number | null;
 }

@@ -1,6 +1,6 @@
 import { FileHost } from '@/file-manager/domain/service/file-host';
 import { RpcClientHandle } from './client-handle';
-import { FileDownloadRequest } from './protocol';
+import { FileDownloadRequest, GetInformationRequest } from './protocol';
 
 export class RpcHostHandler {
   constructor(
@@ -14,10 +14,11 @@ export class RpcHostHandler {
     });
   }
 
-  async onGetInformationRequest(): Promise<void> {
+  async onGetInformationRequest(request: GetInformationRequest): Promise<void> {
     const information = await this.fileHost.getInformation();
 
     this.clientHandle.sendGetInformationResponse({
+      messageId: request.messageId,
       information,
     });
   }
@@ -26,6 +27,7 @@ export class RpcHostHandler {
     const stream = await this.fileHost.downloadFile(request.fileId);
 
     this.clientHandle.sendFileDownloadResponse({
+      messageId: request.messageId,
       stream,
     });
   }

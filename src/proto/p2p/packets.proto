@@ -6,11 +6,6 @@ message SharedFileMetadata {
   int64 size = 3;
 }
 
-message GetInformationResponse {
-  string name = 1;
-  repeated SharedFileMetadata files = 2;
-}
-
 message FileUpdate {
   oneof update {
     FileAdded file_added = 1;
@@ -22,14 +17,26 @@ message FileUpdate {
   }
 
   message FileRemoved {
-    string fileId = 1;
+    string file_id = 1;
   }
 }
 
+message GetInformationRequest {
+  string message_id = 1;
+}
+
+message GetInformationResponse {
+  string message_id = 1;
+  string name = 2;
+  repeated SharedFileMetadata files = 3;
+}
+
 message FileDownloadRequest {
-  string fileId = 1;
+  string message_id = 1;
+  string file_id = 2;
 }
 
 message FileDownloadResponse {
-  int32 channelId = 1;
+  string message_id = 1;
+  int32 channel_id = 2;
 }

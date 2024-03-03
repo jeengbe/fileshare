@@ -1,7 +1,7 @@
 import { writePacket } from '@/util/stream/packet';
 import { Writer } from '@/util/writer';
 import { RpcHostHandle } from '../rpc/host-handle';
-import { FileDownloadRequest } from '../rpc/protocol';
+import { FileDownloadRequest, GetInformationRequest } from '../rpc/protocol';
 import { FileSharingEncoder } from './codec';
 import { PacketType } from './protocol';
 
@@ -11,8 +11,8 @@ export class StreamPacketHostHandle implements RpcHostHandle {
     private readonly encoder = new FileSharingEncoder(),
   ) {}
 
-  sendGetInformationRequest(): void {
-    const payload = new Uint8Array();
+  sendGetInformationRequest(request: GetInformationRequest): void {
+    const payload = this.encoder.encodeGetInformationRequest(request);
 
     this.writePacket(PacketType.GetInformationRequest, payload);
   }

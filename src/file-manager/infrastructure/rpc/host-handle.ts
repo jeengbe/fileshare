@@ -1,7 +1,7 @@
-import { FileDownloadRequest } from './protocol';
+import { FileDownloadRequest, GetInformationRequest } from './protocol';
 
 export interface RpcHostHandle {
-  sendGetInformationRequest(): void;
+  sendGetInformationRequest(request: GetInformationRequest): void;
 
   sendFileDownloadRequest(request: FileDownloadRequest): void;
 }

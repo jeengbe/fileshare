@@ -35,14 +35,14 @@ export class RpcSignalingService
   }
 
   getInfo(): Promise<PeerInfo> {
-    if (this.getInformationResolve !== null) {
-      throw new Error('Another getInformation request is in progress');
-    }
+    const id = crypto.randomUUID();
 
     return new Promise((resolve) => {
-      this.getInformationResolve = resolve;
+      this.getInformationResolves.set(id, resolve);
 
-      this.rpcServerHandle.sendGetInformationRequest();
+      this.rpcServerHandle.sendGetInformationRequest({
+        messageId: id,
+      });
     });
   }
 

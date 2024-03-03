@@ -15,7 +15,12 @@ export interface IceCandidateEvent {
   candidate: RTCIceCandidate;
 }
 
+export interface GetInformationRequest {
+  messageId: string;
+}
+
 export interface GetInformationResponse {
+  messageId: string;
   information: PeerInfo;
 }
 

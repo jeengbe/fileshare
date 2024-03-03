@@ -15,7 +15,7 @@ export class StreamPacketHostHandler {
 
     switch (type) {
       case PacketType.GetInformationRequest:
-        await this.onGetInformationRequest();
+        await this.onGetInformationRequest(payload);
         break;
       case PacketType.FileDownloadRequest:
         await this.onFileDownloadRequest(payload);
@@ -25,8 +25,14 @@ export class StreamPacketHostHandler {
     }
   }
 
-  private async onGetInformationRequest(): Promise<void> {
-    await this.rpcHandler.onGetInformationRequest();
+  private async onGetInformationRequest(
+    payload: ArrayBufferLike,
+  ): Promise<void> {
+    const request = this.decoder.decodeGetInformationRequest(
+      new Uint8Array(payload),
+    );
+
+    await this.rpcHandler.onGetInformationRequest(request);
   }
 
   private async onFileDownloadRequest(payload: ArrayBufferLike): Promise<void> {

@@ -6,14 +6,14 @@ import { RpcClientHandler } from './client-handler';
 
 export class RpcFileHost extends RpcClientHandler implements FileHost {
   getInformation(): Promise<HostInformation> {
-    if (this.getInformationResolve !== null) {
-      // throw new Error('Another listFilesMetadata request is in progress');
-    }
+    const id = crypto.randomUUID();
 
     return new Promise((resolve) => {
-      this.getInformationResolve = resolve;
+      this.getInformationResolves.set(id, resolve);
 
-      this.hostHandle.sendGetInformationRequest();
+      this.hostHandle.sendGetInformationRequest({
+        messageId: id,
+      });
     });
   }
 
@@ -22,14 +22,15 @@ export class RpcFileHost extends RpcClientHandler implements FileHost {
   }
 
   downloadFile(fileId: string): Promise<ReadableStream<Uint8Array> | null> {
-    if (this.downloadFileResolve !== null) {
-      // throw new Error('Another downloadFile request is in progress');
-    }
+    const id = crypto.randomUUID();
 
     return new Promise((resolve) => {
-      this.downloadFileResolve = resolve;
+      this.downloadFileResolves.set(id, resolve);
 
-      this.hostHandle.sendFileDownloadRequest({ fileId });
+      this.hostHandle.sendFileDownloadRequest({
+        messageId: id,
+        fileId,
+      });
     });
   }
 }

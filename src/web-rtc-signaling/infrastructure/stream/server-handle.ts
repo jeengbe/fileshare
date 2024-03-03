@@ -1,6 +1,7 @@
 import { Writer } from '@/util/writer';
 import { writePacket } from '../../../util/stream/packet';
 import {
+  GetInformationRequest,
   SendAnswerRequest,
   SendIceCandidateRequest,
   SendOfferRequest,
@@ -33,8 +34,10 @@ export class StreamPacketServerHandle implements RpcServerHandle {
     this.writePacket(PacketType.SendIceCandidateRequest, payload);
   }
 
-  sendGetInformationRequest(): void {
-    this.writePacket(PacketType.GetInformationRequest, new Uint8Array());
+  sendGetInformationRequest(request: GetInformationRequest): void {
+    const payload = this.encoder.encodeGetInformationRequest(request);
+
+    this.writePacket(PacketType.GetInformationRequest, payload);
   }
 
   private writePacket(type: PacketType, payload: Uint8Array): void {

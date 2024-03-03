@@ -12,8 +12,10 @@ export class RpcClientHandler {
   protected readonly answerEvent$ = new Subject<AnswerEvent>();
   protected readonly iceCandidateEvent$ = new Subject<IceCandidateEvent>();
 
-  protected getInformationResolve: ((information: PeerInfo) => void) | null =
-    null;
+  protected getInformationResolves = new Map<
+    string,
+    (information: PeerInfo) => void
+  >();
 
   async onOfferEvent(event: OfferEvent): Promise<void> {
     this.offerEvent$.next(event);
@@ -30,12 +32,16 @@ export class RpcClientHandler {
   async onGetInformationResponse(
     response: GetInformationResponse,
   ): Promise<void> {
-    if (!this.getInformationResolve) {
+    const getInformationResolve = this.getInformationResolves.get(
+      response.messageId,
+    );
+
+    if (!getInformationResolve) {
       throw new Error('Unexpected getInformation response');
     }
 
-    this.getInformationResolve(response.information);
+    getInformationResolve(response.information);
 
-    this.getInformationResolve = null;
+    this.getInformationResolves.delete(response.messageId);
   }
 }

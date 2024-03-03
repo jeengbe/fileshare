@@ -11,26 +11,32 @@ import {
 export class RpcClientHandler {
   protected readonly fileUpdate$ = new Subject<FileUpdate>();
 
-  protected getInformationResolve:
-    | ((information: HostInformation) => void)
-    | null = null;
+  protected getInformationResolves = new Map<
+    string,
+    (information: HostInformation) => void
+  >();
 
-  protected downloadFileResolve:
-    | ((file: ReadableStream<Uint8Array> | null) => void)
-    | null = null;
+  protected downloadFileResolves = new Map<
+    string,
+    (file: ReadableStream<Uint8Array> | null) => void
+  >();
 
   constructor(protected readonly hostHandle: RpcHostHandle) {}
 
   async onGetInformationResponse(
     response: GetInformationResponse,
   ): Promise<void> {
-    if (!this.getInformationResolve) {
-      // throw new Error('Unexpected getInformation response');
+    const getInformationResolve = this.getInformationResolves.get(
+      response.messageId,
+    );
+
+    if (!getInformationResolve) {
+      throw new Error('Unexpected getInformation response');
     }
 
-    this.getInformationResolve?.(response.information);
+    getInformationResolve(response.information);
 
-    this.getInformationResolve = null;
+    this.getInformationResolves.delete(response.messageId);
   }
 
   async onFileUpdate(notification: FileUpdateNotification): Promise<void> {
@@ -38,12 +44,16 @@ export class RpcClientHandler {
   }
 
   async onFileDownloadResponse(response: FileDownloadResponse): Promise<void> {
-    if (!this.downloadFileResolve) {
-      // throw new Error('Unexpected fileDownload response');
+    const downloadFileResolve = this.downloadFileResolves.get(
+      response.messageId,
+    );
+
+    if (!downloadFileResolve) {
+      throw new Error('Unexpected fileDownload response');
     }
 
-    this.downloadFileResolve?.(response.stream);
+    downloadFileResolve(response.stream);
 
-    this.downloadFileResolve = null;
+    this.downloadFileResolves.delete(response.messageId);
   }
 }

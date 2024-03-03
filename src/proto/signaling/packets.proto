@@ -39,9 +39,14 @@ message IceCandidateEvent {
   RtcIceCandidate candidate = 2;
 }
 
+message GetInformationRequest {
+  string message_id = 1;
+}
+
 message GetInformationResponse {
-  string user_id = 1;
-  RtcConfiguration rtc_configuration = 2;
+  string message_id = 1;
+  string user_id = 2;
+  RtcConfiguration rtc_configuration = 3;
 }
 
 message SendOfferRequest {

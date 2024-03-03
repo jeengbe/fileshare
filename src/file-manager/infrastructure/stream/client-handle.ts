@@ -1,4 +1,4 @@
-import { ChannelManager } from '@/connect/channel-manager';
+import { ChannelManager } from '@/util/channel-manager';
 import { writePacket } from '@/util/stream/packet';
 import { Writer } from '@/util/writer';
 import { RpcClientHandle } from '../rpc/client-handle';
@@ -41,10 +41,12 @@ export class StreamPacketClientHandle implements RpcClientHandle {
       });
 
       responsePacket = {
+        messageId: response.messageId,
         channelId,
       };
     } else {
       responsePacket = {
+        messageId: response.messageId,
         channelId: null,
       };
     }

@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import {
   AnswerEvent as AnswerEventProto,
+  GetInformationRequest as GetInformationRequestProto,
   GetInformationResponse as GetInformationResponseProto,
   IceCandidateEvent as IceCandidateEventProto,
   OfferEvent as OfferEventProto,
@@ -13,6 +14,7 @@ import {
 } from '@/lib/proto/signaling/packets';
 import {
   AnswerEvent,
+  GetInformationRequest,
   GetInformationResponse,
   IceCandidateEvent,
   OfferEvent,
@@ -43,8 +45,15 @@ export class SignalingServiceEncoder {
     }).serialize();
   }
 
+  encodeGetInformationRequest(request: GetInformationRequest): Uint8Array {
+    return GetInformationRequestProto.fromObject({
+      message_id: request.messageId,
+    }).serialize();
+  }
+
   encodeGetInformationResponse(response: GetInformationResponse): Uint8Array {
     return GetInformationResponseProto.fromObject({
+      message_id: response.messageId,
       user_id: response.information.userId,
       rtc_configuration: {
         ice_servers: response.information.rtcConfig.iceServers?.flatMap(
@@ -104,10 +113,19 @@ export class SignalingServiceDecoder {
     };
   }
 
+  decodeGetInformationRequest(data: Uint8Array): GetInformationRequest {
+    const proto = GetInformationRequestProto.deserialize(data);
+
+    return {
+      messageId: proto.message_id,
+    };
+  }
+
   decodeGetInformationResponse(data: Uint8Array): GetInformationResponse {
     const proto = GetInformationResponseProto.deserialize(data);
 
     return {
+      messageId: proto.message_id,
       information: {
         userId: proto.user_id,
         rtcConfig: {

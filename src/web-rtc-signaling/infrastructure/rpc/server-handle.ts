@@ -1,11 +1,12 @@
 import {
+  GetInformationRequest,
   SendAnswerRequest,
   SendIceCandidateRequest,
   SendOfferRequest,
 } from './protocol';
 
 export interface RpcServerHandle {
-  sendGetInformationRequest(): void;
+  sendGetInformationRequest(request: GetInformationRequest): void;
 
   sendSendOfferRequest(request: SendOfferRequest): void;
 

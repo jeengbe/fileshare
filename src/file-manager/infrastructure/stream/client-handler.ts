@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
-import { ChannelManager } from '@/connect/channel-manager';
+import { ChannelManager } from '@/util/channel-manager';
 import { decodePacket } from '@/util/stream/packet';
 import { RpcClientHandler } from '../rpc/client-handler';
 import { FileDownloadResponse } from '../rpc/protocol';
@@ -67,12 +67,14 @@ export class StreamPacketClientHandler {
       );
 
       response = {
+        messageId: responsePacket.messageId,
         stream: stream.pipeThrough(
           new ArrayBufferToUint8ArrayTransformStream(),
         ),
       };
     } else {
       response = {
+        messageId: responsePacket.messageId,
         stream: null,
       };
     }

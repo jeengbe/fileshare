@@ -5,12 +5,14 @@ import {
   FileDownloadRequest as FileDownloadRequestProto,
   FileDownloadResponse as FileDownloadResponseProto,
   FileUpdate as FileUpdateProto,
+  GetInformationRequest as GetInformationRequestProto,
   GetInformationResponse as GetInformationResponseProto,
   SharedFileMetadata as SharedFileMetadataProto,
 } from '@/lib/proto/p2p/packets';
 import {
   FileDownloadRequest,
   FileUpdateNotification,
+  GetInformationRequest,
   GetInformationResponse,
 } from '../rpc/protocol';
 import { FileDownloadResponsePacket } from './protocol';
@@ -20,8 +22,15 @@ export class FileSharingEncoder {
     return SharedFileMetadataProto.fromObject(metadata).serialize();
   }
 
+  encodeGetInformationRequest(request: GetInformationRequest): Uint8Array {
+    return GetInformationRequestProto.fromObject({
+      message_id: request.messageId,
+    }).serialize();
+  }
+
   encodeGetInformationResponse(response: GetInformationResponse): Uint8Array {
     return GetInformationResponseProto.fromObject({
+      message_id: response.messageId,
       name: response.information.name,
       files: response.information.files.map((item) =>
         SharedFileMetadataProto.fromObject(item),
@@ -43,19 +52,23 @@ export class FileSharingEncoder {
       case FileUpdateType.Removed:
         return FileUpdateProto.fromObject({
           file_removed: FileUpdateProto.FileRemoved.fromObject({
-            fileId: notification.update.fileId,
+            file_id: notification.update.fileId,
           }),
         }).serialize();
     }
   }
 
   encodeFileDownloadRequest(request: FileDownloadRequest): Uint8Array {
-    return FileDownloadRequestProto.fromObject(request).serialize();
+    return FileDownloadRequestProto.fromObject({
+      message_id: request.messageId,
+      file_id: request.fileId,
+    }).serialize();
   }
 
   encodeFileDownloadResponse(response: FileDownloadResponsePacket): Uint8Array {
     return FileDownloadResponseProto.fromObject({
-      channelId: response.channelId ?? undefined,
+      message_id: response.messageId,
+      channel_id: response.channelId ?? undefined,
     }).serialize();
   }
 }
@@ -71,10 +84,19 @@ export class FileSharingDecoder {
     };
   }
 
+  decodeGetInformationRequest(data: Uint8Array): GetInformationRequest {
+    const proto = GetInformationRequestProto.deserialize(data);
+
+    return {
+      messageId: proto.message_id,
+    };
+  }
+
   decodeGetInformationResponse(data: Uint8Array): GetInformationResponse {
     const proto = GetInformationResponseProto.deserialize(data);
 
     return {
+      messageId: proto.message_id,
       information: {
         name: proto.name,
         files: proto.files.map((item) => ({
@@ -104,7 +126,7 @@ export class FileSharingDecoder {
       return {
         update: {
           type: FileUpdateType.Removed,
-          fileId: proto.file_removed.fileId,
+          fileId: proto.file_removed.file_id,
         },
       };
     }
@@ -116,7 +138,8 @@ export class FileSharingDecoder {
     const proto = FileDownloadRequestProto.deserialize(data);
 
     return {
-      fileId: proto.fileId,
+      messageId: proto.message_id,
+      fileId: proto.file_id,
     };
   }
 
@@ -124,7 +147,8 @@ export class FileSharingDecoder {
     const proto = FileDownloadResponseProto.deserialize(data);
 
     return {
-      channelId: proto.channelId,
+      messageId: proto.message_id,
+      channelId: proto.channel_id,
     };
   }
 }
