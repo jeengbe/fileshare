@@ -8,8 +8,8 @@ export interface IncomingWebRtcConnection {
   fromId: string;
   offer: RTCSessionDescriptionInit;
 
-  sendAnswer(answer: RTCSessionDescriptionInit): Promise<void>;
-  sendIceCandidate(candidate: RTCIceCandidate): Promise<void>;
+  sendAnswer(answer: RTCSessionDescriptionInit): void;
+  sendIceCandidate(candidate: RTCIceCandidate): void;
 }
 
 export interface OutgoingWebRtcConnectionRequest {
@@ -22,7 +22,7 @@ export interface OutgoingWebRtcConnection {
 
   answer: Promise<RTCSessionDescriptionInit>;
 
-  sendIceCandidate(candidate: RTCIceCandidate): Promise<void>;
+  sendIceCandidate(candidate: RTCIceCandidate): void;
 }
 
 export class WebRtcSignalingServer {
@@ -48,21 +48,24 @@ export class WebRtcSignalingServer {
             iceCandidate$,
             fromId,
             offer,
-            sendAnswer: (answer) => service.sendAnswer(fromId, answer),
-            sendIceCandidate: (candidate) =>
-              service.sendIceCandidate(fromId, candidate),
+            sendAnswer: (answer) => {
+              service.sendAnswer(fromId, answer);
+            },
+            sendIceCandidate: (candidate) => {
+              service.sendIceCandidate(fromId, candidate);
+            },
           };
         }),
       )
       .subscribe(this.incoming$);
   }
 
-  async sendRequest(
+  sendRequest(
     request: OutgoingWebRtcConnectionRequest,
-  ): Promise<OutgoingWebRtcConnection> {
+  ): OutgoingWebRtcConnection {
     const { toId, offer } = request;
 
-    await this.service.sendOffer(toId, offer);
+    this.service.sendOffer(toId, offer);
 
     const iceCandidate$ = new Subject<RTCIceCandidate>();
 
@@ -83,8 +86,9 @@ export class WebRtcSignalingServer {
     return {
       iceCandidate$,
       answer: answerPromise,
-      sendIceCandidate: (candidate) =>
-        this.service.sendIceCandidate(toId, candidate),
+      sendIceCandidate: (candidate) => {
+        this.service.sendIceCandidate(toId, candidate);
+      },
     };
   }
 }

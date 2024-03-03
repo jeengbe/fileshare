@@ -5,9 +5,6 @@ export enum PacketType {
   GetInformationRequest = 3,
   GetInformationResponse = 4,
   SendOfferRequest = 5,
-  SendOfferResponse = 6,
-  SendAnswerRequest = 7,
-  SendAnswerResponse = 8,
-  SendIceCandidateRequest = 9,
-  SendIceCandidateResponse = 10,
+  SendAnswerRequest = 6,
+  SendIceCandidateRequest = 7,
 }

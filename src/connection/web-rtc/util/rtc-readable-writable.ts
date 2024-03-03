@@ -46,15 +46,22 @@ export function rtcToWritable(
       return;
     }
 
-    const oldOnBufferedAmountLow = channel.onbufferedamountlow;
-    const oldOnError = channel.onerror;
+    let onBufferedAmountLow!: () => void;
+    let onError!: (event: Event) => void;
 
-    await new Promise((resolve, reject) => {
-      channel.onbufferedamountlow = resolve;
-      channel.onerror = reject;
+    const promise = new Promise<void>((resolve, reject) => {
+      onBufferedAmountLow = resolve;
+      onError = reject;
     });
 
-    channel.onbufferedamountlow = oldOnBufferedAmountLow;
-    channel.onerror = oldOnError;
+    channel.addEventListener('bufferedamountlow', onBufferedAmountLow);
+    channel.addEventListener('error', onError);
+
+    try {
+      await promise;
+    } finally {
+      channel.removeEventListener('bufferedamountlow', onBufferedAmountLow);
+      channel.removeEventListener('error', onError);
+    }
   }
 }

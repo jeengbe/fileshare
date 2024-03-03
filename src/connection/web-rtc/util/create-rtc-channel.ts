@@ -18,14 +18,21 @@ async function awaitChannelOpen(channel: RTCDataChannel): Promise<void> {
     return;
   }
 
-  const oldOnOpen = channel.onopen;
-  const oldOnError = channel.onerror;
+  let onOpen!: () => void;
+  let onError!: (event: Event) => void;
 
-  await new Promise((resolve, reject) => {
-    channel.onopen = resolve;
-    channel.onerror = reject;
+  const promise = new Promise<void>((resolve, reject) => {
+    onOpen = resolve;
+    onError = reject;
   });
 
-  channel.onopen = oldOnOpen;
-  channel.onerror = oldOnError;
+  channel.addEventListener('open', onOpen);
+  channel.addEventListener('error', onError);
+
+  try {
+    await promise;
+  } finally {
+    channel.removeEventListener('open', onOpen);
+    channel.removeEventListener('error', onError);
+  }
 }

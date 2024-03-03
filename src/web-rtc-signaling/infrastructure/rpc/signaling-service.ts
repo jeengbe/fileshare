@@ -2,7 +2,7 @@ import { PeerInfo } from '@/web-rtc-signaling/domain/model/info';
 import { SignalingService } from '@/web-rtc-signaling/domain/service/signaling-service';
 import { Subject, map } from 'rxjs';
 import { RpcClientHandler } from './client-handler';
-import { RpcHostHandle } from './host-handle';
+import { RpcServerHandle } from './server-handle';
 
 export class RpcSignalingService
   extends RpcClientHandler
@@ -18,7 +18,7 @@ export class RpcSignalingService
     readonly [fromId: string, RTCIceCandidate]
   >();
 
-  constructor(private readonly hostHandle: RpcHostHandle) {
+  constructor(private readonly rpcServerHandle: RpcServerHandle) {
     super();
 
     this.offerEvent$
@@ -36,67 +36,25 @@ export class RpcSignalingService
 
   getInfo(): Promise<PeerInfo> {
     if (this.getInformationResolve !== null) {
-      // throw new Error('Another getInformation request is in progress');
+      throw new Error('Another getInformation request is in progress');
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.getInformationResolve = resolve;
 
-      this.hostHandle.sendGetInformationRequest().catch((err: Error) => {
-        this.getInformationResolve = null;
-        reject(err);
-      });
+      this.rpcServerHandle.sendGetInformationRequest();
     });
   }
 
-  sendOffer(toId: string, offer: RTCSessionDescriptionInit): Promise<void> {
-    if (this.sendOfferResolve !== null) {
-      // throw new Error('Another sendOffer request is in progress');
-    }
-
-    return new Promise((resolve, reject) => {
-      this.sendOfferResolve = resolve;
-
-      this.hostHandle
-        .sendSendOfferRequest({ toId, offer })
-        .catch((err: Error) => {
-          this.sendOfferResolve = null;
-          reject(err);
-        });
-    });
+  sendOffer(toId: string, offer: RTCSessionDescriptionInit): void {
+    this.rpcServerHandle.sendSendOfferRequest({ toId, offer });
   }
 
-  sendAnswer(toId: string, answer: RTCSessionDescriptionInit): Promise<void> {
-    if (this.sendAnswerResolve !== null) {
-      // throw new Error('Another sendAnswer request is in progress');
-    }
-
-    return new Promise((resolve, reject) => {
-      this.sendAnswerResolve = resolve;
-
-      this.hostHandle
-        .sendSendAnswerRequest({ toId, answer })
-        .catch((err: Error) => {
-          this.sendAnswerResolve = null;
-          reject(err);
-        });
-    });
+  sendAnswer(toId: string, answer: RTCSessionDescriptionInit): void {
+    this.rpcServerHandle.sendSendAnswerRequest({ toId, answer });
   }
 
-  sendIceCandidate(toId: string, candidate: RTCIceCandidate): Promise<void> {
-    if (this.sendIceCandidateResolve !== null) {
-      // throw new Error('Another sendIceCandidate request is in progress');
-    }
-
-    return new Promise((resolve, reject) => {
-      this.sendIceCandidateResolve = resolve;
-
-      this.hostHandle
-        .sendSendIceCandidateRequest({ toId, candidate })
-        .catch((err: Error) => {
-          this.sendIceCandidateResolve = null;
-          reject(err);
-        });
-    });
+  sendIceCandidate(toId: string, candidate: RTCIceCandidate): void {
+    this.rpcServerHandle.sendSendIceCandidateRequest({ toId, candidate });
   }
 }

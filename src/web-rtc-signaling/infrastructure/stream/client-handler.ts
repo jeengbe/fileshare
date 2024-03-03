@@ -13,8 +13,6 @@ export class StreamPacketClientHandler {
   async onMessage(chunk: ArrayBufferLike): Promise<void> {
     const { type, payload } = decodePacket(chunk);
 
-    console.log(type, payload);
-
     switch (type) {
       case PacketType.OfferEvent:
         await this.onOfferEvent(payload);
@@ -27,15 +25,6 @@ export class StreamPacketClientHandler {
         break;
       case PacketType.GetInformationResponse:
         await this.onGetInformationResponse(payload);
-        break;
-      case PacketType.SendOfferResponse:
-        await this.onSendOfferResponse();
-        break;
-      case PacketType.SendAnswerResponse:
-        await this.onSendAnswerResponse();
-        break;
-      case PacketType.SendIceCandidateResponse:
-        await this.onSendIceCandidateResponse();
         break;
       default:
         throw new Error('Unknown packet type');
@@ -68,17 +57,5 @@ export class StreamPacketClientHandler {
     );
 
     await this.rpcHandler.onGetInformationResponse(response);
-  }
-
-  private async onSendOfferResponse(): Promise<void> {
-    await this.rpcHandler.onSendOfferResponse();
-  }
-
-  private async onSendAnswerResponse(): Promise<void> {
-    await this.rpcHandler.onSendAnswerResponse();
-  }
-
-  private async onSendIceCandidateResponse(): Promise<void> {
-    await this.rpcHandler.onSendIceCandidateResponse();
   }
 }

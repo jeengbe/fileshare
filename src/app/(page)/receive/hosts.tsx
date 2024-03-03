@@ -1,146 +1,25 @@
 'use client';
 
-import {
-  rawToWithMetaChannel,
-  step3ToClient4,
-  withMetaChannelToReadableWritableChannelManager,
-} from '@/connection/web-rtc/map';
-import {
-  establishConnectionIncoming,
-  establishConnectionOutgoing,
-} from '@/connection/web-rtc/web-rtc';
-import { wsToWritable } from '@/connection/ws/util/ws-readable-writable';
-import { FileHost } from '@/file-manager/domain/service/file-host';
-import { StreamPacketClientHandler as FileStreamPacketClientHandler } from '@/file-manager/infrastructure/stream/client-handler';
-import { useLater } from '@/util/use-later';
-import { WebRtcSignalingServer } from '@/web-rtc-signaling/application/signaling-server';
-import { RpcSignalingService } from '@/web-rtc-signaling/infrastructure/rpc/signaling-service';
-import { StreamPacketClientHandler as SignalingStreamPacketClientHandler } from '@/web-rtc-signaling/infrastructure/stream/client-handler';
-import { StreamPacketHostHandle } from '@/web-rtc-signaling/infrastructure/stream/host-handle';
-import { useCallback, useEffect, useState } from 'react';
-import { map, mergeMap } from 'rxjs';
+import { useSignaling } from '@/connection/connect';
 import { ReceiveHost } from './host';
 
-async function createSignalingWebSocket(): Promise<WebSocket> {
-  const webSocket = new WebSocket('ws://localhost:8080');
-
-  webSocket.binaryType = 'arraybuffer';
-
-  await new Promise((resolve, reject) => {
-    webSocket.onopen = resolve;
-    webSocket.onerror = reject;
-  });
-  webSocket.onopen = null;
-  webSocket.onerror = null;
-
-  return webSocket;
-}
-
 export const Receive = () => {
-  const [hosts, setHosts] = useState<
-    ReadonlyMap<
-      string,
-      [host: FileHost, packetHandler: FileStreamPacketClientHandler]
-    >
-  >(new Map());
+  const s = useSignaling();
 
-  const signalingServer = useLater(() =>
-    createSignalingWebSocket().then(async (ws) => {
-      const writable = wsToWritable(ws);
-
-      const hostHandle = new StreamPacketHostHandle(writable);
-      const signalingService = new RpcSignalingService(hostHandle);
-      const packetHandler = new SignalingStreamPacketClientHandler(
-        signalingService,
-      );
-
-      ws.onmessage = ({ data }) =>
-        packetHandler.onMessage(data as ArrayBufferLike);
-
-      const info = await signalingService.getInfo();
-
-      return new WebRtcSignalingServer(info, signalingService);
-    }),
-  );
-
-  useEffect(() => {
-    if (signalingServer) {
-      const subscription = signalingServer.incoming$
-        .pipe(mergeMap(establishConnectionIncoming(signalingServer)))
-        .pipe(
-          mergeMap(rawToWithMetaChannel),
-          map(withMetaChannelToReadableWritableChannelManager),
-          map(step3ToClient4),
-        )
-        .subscribe(({ peerId, clientHandler, host }) => {
-          setHosts((hosts) =>
-            new Map(hosts).set(peerId, [host, clientHandler]),
-          );
-
-          void clientHandler.closePromise.then(() => {
-            setHosts((hosts) => {
-              const newHosts = new Map(hosts);
-              newHosts.delete(peerId);
-              return newHosts;
-            });
-          });
-        });
-
-      return () => subscription.unsubscribe();
-    }
-  }, [signalingServer]);
-
-  const connect = useCallback(
-    async (peerId: string) => {
-      if (!signalingServer) return;
-
-      const connection =
-        await establishConnectionOutgoing(signalingServer)(peerId);
-
-      const { clientHandler, host } = step3ToClient4(
-        withMetaChannelToReadableWritableChannelManager(
-          await rawToWithMetaChannel(connection),
-        ),
-      );
-
-      setHosts((hosts) => new Map(hosts).set(peerId, [host, clientHandler]));
-
-      void clientHandler.closePromise.then(() => {
-        setHosts((hosts) => {
-          const newHosts = new Map(hosts);
-          newHosts.delete(peerId);
-          return newHosts;
-        });
-      });
-    },
-    [signalingServer],
-  );
-
-  return (
-    <main className='flex flex-col gap-2 items-center'>
-      {signalingServer ? (
-        <Idle
-          id={signalingServer.info.userId}
-          hosts={hosts}
-          connect={connect}
-        />
-      ) : (
-        <Connecting />
-      )}
-    </main>
+  return s ? (
+    <Idle id={s.info.userId} peers={s.peers} connect={s.connect} />
+  ) : (
+    <Connecting />
   );
 };
 
 const Idle = ({
   id,
-  hosts,
+  peers,
   connect,
 }: {
   id: string;
-  hosts: ReadonlyMap<
-    string,
-    [host: FileHost, packetHandler: FileStreamPacketClientHandler]
-  >;
+  peers: ReadonlyMap<string, RTCPeerConnection>;
   connect: (peerId: string) => void;
 }) => (
   <>
@@ -169,8 +48,8 @@ const Idle = ({
       </form>
     </section>
 
-    {Array.from(hosts, ([hostId, [host, packetHandler]]) => (
-      <ReceiveHost key={hostId} host={host} packetHandler={packetHandler} />
+    {Array.from(peers, ([peerId, rtcConnection]) => (
+      <ReceiveHost key={peerId} rtcConnection={rtcConnection} />
     ))}
   </>
 );

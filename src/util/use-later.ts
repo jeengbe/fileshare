@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 
 export function useLater<T>(
-  valueFn: () => Promise<T>,
-  disposeFn?: (value: T) => void,
+  valueFn: (abort: AbortSignal) => Promise<T>,
 ): T | null {
   const [result, setResult] = useState<T | null>(null);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     let cancelled = false;
 
-    void valueFn().then((result) => {
+    void valueFn(abortController.signal).then((result) => {
       if (!cancelled) {
         setResult(result);
       }
@@ -17,10 +18,7 @@ export function useLater<T>(
 
     return () => {
       cancelled = true;
-
-      if (result) {
-        disposeFn?.(result);
-      }
+      abortController.abort();
     };
   }, []);
 

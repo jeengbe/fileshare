@@ -6,7 +6,9 @@ export default function Page() {
   return (
     <div className='flex flex-col h-screen items-center justify-between gap-32'>
       <div />
-      <Receive />
+      <main className='flex flex-col gap-2 items-center'>
+        <Receive />
+      </main>
       <footer className='flex justify-center w-full gap-2 pb-4'>
         <Link
           className='text-secondary-foreground hover:text-blue-500 transition-colors flex items-center gap-1'

@@ -25,10 +25,10 @@ export class RpcClientHandler {
     response: GetInformationResponse,
   ): Promise<void> {
     if (!this.getInformationResolve) {
-      throw new Error('Unexpected getInformation response');
+      // throw new Error('Unexpected getInformation response');
     }
 
-    this.getInformationResolve(response.information);
+    this.getInformationResolve?.(response.information);
 
     this.getInformationResolve = null;
   }
@@ -39,10 +39,10 @@ export class RpcClientHandler {
 
   async onFileDownloadResponse(response: FileDownloadResponse): Promise<void> {
     if (!this.downloadFileResolve) {
-      throw new Error('Unexpected fileDownload response');
+      // throw new Error('Unexpected fileDownload response');
     }
 
-    this.downloadFileResolve(response.stream);
+    this.downloadFileResolve?.(response.stream);
 
     this.downloadFileResolve = null;
   }

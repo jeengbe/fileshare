@@ -8,7 +8,7 @@ export class RpcHostHandler {
     private readonly clientHandle: RpcClientHandle,
   ) {
     this.fileHost.subscribeToFileUpdates((update) => {
-      void this.clientHandle.sendFileUpdate({
+      this.clientHandle.sendFileUpdate({
         update,
       });
     });
@@ -17,7 +17,7 @@ export class RpcHostHandler {
   async onGetInformationRequest(): Promise<void> {
     const information = await this.fileHost.getInformation();
 
-    return this.clientHandle.sendGetInformationResponse({
+    this.clientHandle.sendGetInformationResponse({
       information,
     });
   }
@@ -25,7 +25,7 @@ export class RpcHostHandler {
   async onFileDownloadRequest(request: FileDownloadRequest): Promise<void> {
     const stream = await this.fileHost.downloadFile(request.fileId);
 
-    return this.clientHandle.sendFileDownloadResponse({
+    this.clientHandle.sendFileDownloadResponse({
       stream,
     });
   }

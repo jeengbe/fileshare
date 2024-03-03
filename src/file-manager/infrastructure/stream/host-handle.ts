@@ -1,4 +1,5 @@
 import { writePacket } from '@/util/stream/packet';
+import { Writer } from '@/util/writer';
 import { RpcHostHandle } from '../rpc/host-handle';
 import { FileDownloadRequest } from '../rpc/protocol';
 import { FileSharingEncoder } from './codec';
@@ -6,26 +7,23 @@ import { PacketType } from './protocol';
 
 export class StreamPacketHostHandle implements RpcHostHandle {
   constructor(
-    private readonly writable: WritableStream<ArrayBufferLike>,
+    private readonly writer: Writer<ArrayBufferLike>,
     private readonly encoder = new FileSharingEncoder(),
   ) {}
 
-  async sendGetInformationRequest(): Promise<void> {
+  sendGetInformationRequest(): void {
     const payload = new Uint8Array();
 
-    await this.writePacket(PacketType.GetInformationRequest, payload);
+    this.writePacket(PacketType.GetInformationRequest, payload);
   }
 
-  async sendFileDownloadRequest(request: FileDownloadRequest): Promise<void> {
+  sendFileDownloadRequest(request: FileDownloadRequest): void {
     const payload = this.encoder.encodeFileDownloadRequest(request);
 
-    await this.writePacket(PacketType.FileDownloadRequest, payload);
+    this.writePacket(PacketType.FileDownloadRequest, payload);
   }
 
-  private async writePacket(
-    type: PacketType,
-    payload: Uint8Array,
-  ): Promise<void> {
-    await writePacket(this.writable, type, payload);
+  private writePacket(type: PacketType, payload: Uint8Array): void {
+    writePacket(this.writer, type, payload);
   }
 }

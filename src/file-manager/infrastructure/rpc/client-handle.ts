@@ -5,9 +5,9 @@ import {
 } from './protocol';
 
 export interface RpcClientHandle {
-  sendGetInformationResponse(response: GetInformationResponse): Promise<void>;
+  sendGetInformationResponse(response: GetInformationResponse): void;
 
-  sendFileUpdate(notification: FileUpdateNotification): Promise<void>;
+  sendFileUpdate(notification: FileUpdateNotification): void;
 
-  sendFileDownloadResponse(response: FileDownloadResponse): Promise<void>;
+  sendFileDownloadResponse(response: FileDownloadResponse): void;
 }

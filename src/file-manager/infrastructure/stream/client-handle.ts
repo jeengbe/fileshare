@@ -1,5 +1,6 @@
 import { ChannelManager } from '@/connection/channel-manager';
 import { writePacket } from '@/util/stream/packet';
+import { Writer } from '@/util/writer';
 import { RpcClientHandle } from '../rpc/client-handle';
 import {
   FileDownloadResponse,
@@ -11,28 +12,24 @@ import { FileDownloadResponsePacket, PacketType } from './protocol';
 
 export class StreamPacketClientHandle implements RpcClientHandle {
   constructor(
-    private readonly writable: WritableStream<ArrayBufferLike>,
+    private readonly writer: Writer<ArrayBufferLike>,
     private readonly channelManager: ChannelManager,
     private readonly encoder = new FileSharingEncoder(),
   ) {}
 
-  async sendGetInformationResponse(
-    response: GetInformationResponse,
-  ): Promise<void> {
+  sendGetInformationResponse(response: GetInformationResponse): void {
     const payload = this.encoder.encodeGetInformationResponse(response);
 
-    await this.writePacket(PacketType.GetInformationResponse, payload);
+    this.writePacket(PacketType.GetInformationResponse, payload);
   }
 
-  async sendFileUpdate(notification: FileUpdateNotification): Promise<void> {
+  sendFileUpdate(notification: FileUpdateNotification): void {
     const payload = this.encoder.encodeFileUpdateNotification(notification);
 
-    await this.writePacket(PacketType.FileUpdateNotification, payload);
+    this.writePacket(PacketType.FileUpdateNotification, payload);
   }
 
-  async sendFileDownloadResponse(
-    response: FileDownloadResponse,
-  ): Promise<void> {
+  sendFileDownloadResponse(response: FileDownloadResponse): void {
     let responsePacket: FileDownloadResponsePacket;
 
     if (response.stream) {
@@ -54,13 +51,10 @@ export class StreamPacketClientHandle implements RpcClientHandle {
 
     const payload = this.encoder.encodeFileDownloadResponse(responsePacket);
 
-    await this.writePacket(PacketType.FileDownloadResponse, payload);
+    this.writePacket(PacketType.FileDownloadResponse, payload);
   }
 
-  private async writePacket(
-    type: PacketType,
-    payload: Uint8Array,
-  ): Promise<void> {
-    await writePacket(this.writable, type, payload);
+  private writePacket(type: PacketType, payload: Uint8Array): void {
+    writePacket(this.writer, type, payload);
   }
 }

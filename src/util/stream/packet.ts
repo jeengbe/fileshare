@@ -1,12 +1,10 @@
-import { usingLocked } from '@/util/stream/using';
+import { Writer } from '@/util/writer';
 
-export async function writePacket(
-  writable: WritableStream<ArrayBufferLike>,
+export function writePacket(
+  writer: Writer<ArrayBufferLike>,
   type: number,
   payload: ArrayBufferLike,
-): Promise<void> {
-  using writer = usingLocked(writable.getWriter());
-
+): void {
   const header = new DataView(new ArrayBuffer(Uint8Array.BYTES_PER_ELEMENT));
   header.setUint8(0, type);
 
@@ -16,7 +14,7 @@ export async function writePacket(
   headerAndPayload.set(new Int8Array(header.buffer), 0);
   headerAndPayload.set(new Int8Array(payload), header.byteLength);
 
-  await writer.write(headerAndPayload.buffer);
+  writer.write(headerAndPayload.buffer);
 }
 
 export function decodePacket(packet: ArrayBufferLike): {

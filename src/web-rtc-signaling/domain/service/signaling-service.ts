@@ -8,9 +8,9 @@ export interface SignalingService {
 
   getInfo(): Promise<PeerInfo>;
 
-  sendOffer(toId: string, offer: RTCSessionDescriptionInit): Promise<void>;
+  sendOffer(toId: string, offer: RTCSessionDescriptionInit): void;
 
-  sendAnswer(toId: string, answer: RTCSessionDescriptionInit): Promise<void>;
+  sendAnswer(toId: string, answer: RTCSessionDescriptionInit): void;
 
-  sendIceCandidate(toId: string, candidate: RTCIceCandidate): Promise<void>;
+  sendIceCandidate(toId: string, candidate: RTCIceCandidate): void;
 }

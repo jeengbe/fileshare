@@ -22,13 +22,7 @@ export function useDownload(): FileDownloader | null {
       size,
     }) as WritableStream<Uint8Array>;
 
-    const abort = () => {
-      void writable.close();
-    };
-
     const donePromise = stream.pipeTo(writable);
-
-    window.addEventListener('unload', abort);
 
     downloads++;
 
@@ -43,7 +37,5 @@ export function useDownload(): FileDownloader | null {
     if (!downloads) {
       window.removeEventListener('beforeunload', beforeUnload);
     }
-
-    window.removeEventListener('unload', abort);
   };
 }

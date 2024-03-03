@@ -10,13 +10,10 @@ export class RpcFileHost extends RpcClientHandler implements FileHost {
       // throw new Error('Another listFilesMetadata request is in progress');
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.getInformationResolve = resolve;
 
-      this.hostHandle.sendGetInformationRequest().catch((err: Error) => {
-        this.getInformationResolve = null;
-        reject(err);
-      });
+      this.hostHandle.sendGetInformationRequest();
     });
   }
 
@@ -29,15 +26,10 @@ export class RpcFileHost extends RpcClientHandler implements FileHost {
       // throw new Error('Another downloadFile request is in progress');
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.downloadFileResolve = resolve;
 
-      this.hostHandle
-        .sendFileDownloadRequest({ fileId })
-        .catch((err: Error) => {
-          this.downloadFileResolve = null;
-          reject(err);
-        });
+      this.hostHandle.sendFileDownloadRequest({ fileId });
     });
   }
 }

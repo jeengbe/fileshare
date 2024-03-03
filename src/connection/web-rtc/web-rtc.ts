@@ -6,131 +6,74 @@ import { RawRtcConnection } from './steps';
 
 export function establishConnectionIncoming(
   signalingServer: WebRtcSignalingServer,
-): (request: IncomingWebRtcConnection) => Promise<RawRtcConnection> {
-  return async (request) => {
-    const connection = new RTCPeerConnection(signalingServer.info.rtcConfig);
+  incoming: IncomingWebRtcConnection,
+): RawRtcConnection {
+  const rtcConnection = new RTCPeerConnection(signalingServer.info.rtcConfig);
 
-    connection.addEventListener('connectionstatechange', () => {
-      console.log('Connection state change', connection.connectionState);
-    });
-    connection.addEventListener('datachannel', (event) => {
-      console.log('Data channel', event);
-    });
-    connection.addEventListener('icecandidate', (event) => {
-      console.log('Ice candidate', event);
-    });
-    connection.addEventListener('icecandidateerror', (event) => {
-      console.log('Ice candidate error', event);
-    });
-    connection.addEventListener('iceconnectionstatechange', () => {
-      console.log('Ice connection state change', connection.iceConnectionState);
-    });
-    connection.addEventListener('icegatheringstatechange', () => {
-      console.log('Ice gathering state change', connection.iceGatheringState);
-    });
-    connection.addEventListener('negotiationneeded', () => {
-      console.log('Negotiation needed');
-    });
-    connection.addEventListener('signalingstatechange', () => {
-      console.log('Signaling state change', connection.signalingState);
-    });
-    connection.addEventListener('track', (event) => {
-      console.log('Track', event);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  rtcConnection.addEventListener('negotiationneeded', async () => {
+    incoming.iceCandidate$.subscribe((candidate) => {
+      void rtcConnection.addIceCandidate(candidate);
     });
 
-    connection.onnegotiationneeded = async () => {
-      request.iceCandidate$.subscribe((candidate) => {
-        void connection.addIceCandidate(candidate);
-      });
-
-      connection.addEventListener('icecandidate', (event) => {
-        console.log('Ice candidate', event);
+    rtcConnection.addEventListener(
+      'icecandidate',
+      (event: RTCPeerConnectionIceEvent): void => {
         if (event.candidate) {
-          void request.sendIceCandidate(event.candidate);
+          incoming.sendIceCandidate(event.candidate);
         }
-      });
+      },
+    );
 
-      await connection.setRemoteDescription(
-        new RTCSessionDescription(request.offer),
-      );
-      const answer = await connection.createAnswer();
-      await connection.setLocalDescription(answer);
+    await rtcConnection.setRemoteDescription(
+      new RTCSessionDescription(incoming.offer),
+    );
+    const answer = await rtcConnection.createAnswer();
+    await rtcConnection.setLocalDescription(answer);
 
-      await request.sendAnswer(answer);
-    };
+    incoming.sendAnswer(answer);
+  });
 
-    return {
-      peerId: request.fromId,
-      connection,
-    };
+  return {
+    peerId: incoming.fromId,
+    rtcConnection,
   };
 }
 
 export function establishConnectionOutgoing(
   signalingServer: WebRtcSignalingServer,
-): (fromId: string) => Promise<RawRtcConnection> {
-  return async (toId) => {
-    const connection = new RTCPeerConnection(signalingServer.info.rtcConfig);
+  toId: string,
+): RawRtcConnection {
+  const rtcConnection = new RTCPeerConnection(signalingServer.info.rtcConfig);
 
-    connection.addEventListener('connectionstatechange', () => {
-      console.log('Connection state change', connection.connectionState);
-    });
-    connection.addEventListener('datachannel', (event) => {
-      console.log('Data channel', event);
-    });
-    connection.addEventListener('icecandidate', (event) => {
-      console.log('Ice candidate', event);
-    });
-    connection.addEventListener('icecandidateerror', (event) => {
-      console.log('Ice candidate error', event);
-    });
-    connection.addEventListener('iceconnectionstatechange', () => {
-      console.log('Ice connection state change', connection.iceConnectionState);
-    });
-    connection.addEventListener('icegatheringstatechange', () => {
-      console.log('Ice gathering state change', connection.iceGatheringState);
-    });
-    connection.addEventListener('negotiationneeded', () => {
-      console.log('Negotiation needed');
-    });
-    connection.addEventListener('signalingstatechange', () => {
-      console.log('Signaling state change', connection.signalingState);
-    });
-    connection.addEventListener('track', (event) => {
-      console.log('Track', event);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  rtcConnection.addEventListener('negotiationneeded', async () => {
+    const offer = await rtcConnection.createOffer();
+    const outgoing = signalingServer.sendRequest({
+      toId,
+      offer,
     });
 
-    connection.onnegotiationneeded = async () => {
-      const offer = await connection.createOffer();
-      const response = await signalingServer.sendRequest({
-        toId,
-        offer,
-      });
-
-      // eslint-disable-next-line func-style
-      const iceListener = (event: RTCPeerConnectionIceEvent) => {
-        console.log('Ice candidate', event);
+    rtcConnection.addEventListener(
+      'icecandidate',
+      (event: RTCPeerConnectionIceEvent) => {
         if (event.candidate) {
-          void response.sendIceCandidate(event.candidate);
+          outgoing.sendIceCandidate(event.candidate);
         }
-      };
+      },
+    );
 
-      connection.addEventListener('icecandidate', iceListener);
+    outgoing.iceCandidate$.subscribe((candidate) => {
+      void rtcConnection.addIceCandidate(candidate);
+    });
 
-      response.iceCandidate$.subscribe((candidate) => {
-        void connection.addIceCandidate(candidate);
-      });
+    await rtcConnection.setLocalDescription(offer);
 
-      await connection.setLocalDescription(offer);
+    await rtcConnection.setRemoteDescription(await outgoing.answer);
+  });
 
-      await connection.setRemoteDescription(await response.answer);
-
-      connection.removeEventListener('icecandidate', iceListener);
-    };
-
-    return {
-      peerId: toId,
-      connection,
-    };
+  return {
+    peerId: toId,
+    rtcConnection,
   };
 }
